@@ -1,0 +1,9 @@
+server:
+  servlet:
+    context-path: /api
+  port:
+    9001
+
+spring:
+  profiles:
+    default: prod
