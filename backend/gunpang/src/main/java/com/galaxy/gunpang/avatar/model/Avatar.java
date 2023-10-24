@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 @Getter
@@ -40,11 +39,11 @@ public class Avatar extends BaseEntity {
     private LocalDate finishedDate;
     @OneToOne(mappedBy = "avatar", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private DeathCause deathCause;
-    @OneToMany(mappedBy = "avatar", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<Goal> goals;
+    @OneToOne(mappedBy = "avatar", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private Goal goal;
 
     @Builder
-    public Avatar(Long id, User user, AvatarType avatarType, String name, Stage stage, Status status, byte healthPoint, LocalDate startedDate, LocalDate finishedDate, DeathCause deathCause, List<Goal> goals){
+    public Avatar(Long id, User user, AvatarType avatarType, String name, Stage stage, Status status, byte healthPoint, LocalDate startedDate, LocalDate finishedDate, DeathCause deathCause, Goal goal){
         this.id = id;
         this.user = user;
         this.avatarType = avatarType;
@@ -55,6 +54,6 @@ public class Avatar extends BaseEntity {
         this.startedDate = startedDate;
         this.finishedDate = finishedDate;
         this.deathCause = deathCause;
-        this.goals = goals;
+        this.goal = goal;
     }
 }
