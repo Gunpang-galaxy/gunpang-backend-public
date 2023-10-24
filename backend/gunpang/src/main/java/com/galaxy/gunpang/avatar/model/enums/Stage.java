@@ -1,4 +1,4 @@
-package com.galaxy.gunpang.avatar.model;
+package com.galaxy.gunpang.avatar.model.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
