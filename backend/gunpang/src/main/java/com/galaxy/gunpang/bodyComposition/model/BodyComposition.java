@@ -1,6 +1,7 @@
 package com.galaxy.gunpang.bodyComposition.model;
 
 import com.galaxy.gunpang.common.model.BaseEntity;
+import com.galaxy.gunpang.user.model.User;
 import lombok.*;
 
 import javax.persistence.*;
@@ -16,8 +17,9 @@ public class BodyComposition extends BaseEntity {
     @Id
     private Long id;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(columnDefinition = "float", nullable = false)
     private float weight;
