@@ -25,6 +25,9 @@ public class Exercise extends BaseEntity {
     private ExerciseEnum exerciseIntensity;
 
     @Column(nullable = false)
+    private LocalDateTime startedTime;
+
+    @Column(nullable = false)
     private LocalDateTime finishedTime;
 
     @Column(nullable = false)
