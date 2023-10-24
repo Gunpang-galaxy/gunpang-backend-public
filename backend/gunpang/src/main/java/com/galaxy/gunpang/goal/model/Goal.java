@@ -1,13 +1,12 @@
 package com.galaxy.gunpang.goal.model;
 
+import com.galaxy.gunpang.avatar.model.Avatar;
 import com.galaxy.gunpang.common.model.BaseEntity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalTime;
 
 @Entity
@@ -16,9 +15,11 @@ import java.time.LocalTime;
 public class Goal extends BaseEntity {
     @Id
     private Long id;
-    private Long avatarId;
-    @Column(columnDefinition = "TINYINT", nullable = false)
-    private int exerciseDay;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
+    private Avatar avatar;
+    @Column(nullable = false)
+    private byte exerciseDay;
     @Column(nullable = false)
     private int exerciseTime;
     @Column(nullable = false)
@@ -27,9 +28,9 @@ public class Goal extends BaseEntity {
     private LocalTime sleepEndTime;
 
     @Builder
-    public Goal(Long id, Long avatarId, int exerciseDay, int exerciseTime, LocalTime sleepStartTime, LocalTime sleepEndTime){
+    public Goal(Long id, Avatar avatar, byte exerciseDay, int exerciseTime, LocalTime sleepStartTime, LocalTime sleepEndTime){
         this.id = id;
-        this.avatarId = avatarId;
+        this.avatar = avatar;
         this.exerciseDay = exerciseDay;
         this.exerciseTime = exerciseTime;
         this.sleepStartTime = sleepStartTime;
