@@ -1,4 +1,4 @@
-package com.galaxy.gunpang.user.model;
+package com.galaxy.gunpang.user.model.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
