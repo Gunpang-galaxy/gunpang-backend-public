@@ -1,6 +1,7 @@
-package com.galaxy.gunpang.dailyRecord.entity;
+package com.galaxy.gunpang.dailyRecord.model;
 
 import com.galaxy.gunpang.common.model.BaseEntity;
+import com.galaxy.gunpang.dailyRecord.model.enums.FoodType;
 import lombok.*;
 
 import javax.persistence.*;
@@ -29,15 +30,15 @@ public class DailyRecord extends BaseEntity {
 
     @Column()
     @Enumerated(EnumType.STRING)
-    private FoodEnum breakfastFoodType;
+    private FoodType breakfastFoodType;
 
     @Column()
     @Enumerated(EnumType.STRING)
-    private FoodEnum lunchFoodType;
+    private FoodType lunchFoodType;
 
     @Column()
     @Enumerated(EnumType.STRING)
-    private FoodEnum dinnerFoodType;
+    private FoodType dinnerFoodType;
 
     @Column()
     private LocalDateTime sleepAt;
