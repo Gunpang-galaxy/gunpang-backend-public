@@ -1,7 +1,11 @@
-package com.galaxy.gunpang.exercise.entity;
+package com.galaxy.gunpang.exercise.model;
 
 import com.galaxy.gunpang.common.model.BaseEntity;
-import lombok.*;
+import com.galaxy.gunpang.exercise.model.enums.ExerciseIntensity;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -22,7 +26,7 @@ public class Exercise extends BaseEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private ExerciseEnum exerciseIntensity;
+    private ExerciseIntensity exerciseIntensity;
 
     @Column(nullable = false)
     private LocalDateTime startedTime;
