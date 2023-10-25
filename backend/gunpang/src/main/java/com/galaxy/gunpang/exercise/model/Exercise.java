@@ -2,10 +2,7 @@ package com.galaxy.gunpang.exercise.model;
 
 import com.galaxy.gunpang.common.model.BaseEntity;
 import com.galaxy.gunpang.exercise.model.enums.ExerciseIntensity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -15,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@ToString
 @Table(name = "EXERCISE")
 public class Exercise extends BaseEntity {
     @GeneratedValue
@@ -36,5 +34,13 @@ public class Exercise extends BaseEntity {
 
     @Column(nullable = false)
     private int heartRate;
+
+    @Builder
+    public Exercise(Long dailyRecordId, ExerciseIntensity exerciseIntensity, LocalDateTime startedTime, LocalDateTime finishedTime) {
+        this.dailyRecordId = dailyRecordId;
+        this.exerciseIntensity = exerciseIntensity;
+        this.startedTime = startedTime;
+        this.finishedTime = finishedTime;
+    }
 
 }

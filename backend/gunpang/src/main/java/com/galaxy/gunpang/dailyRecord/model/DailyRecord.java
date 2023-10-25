@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@ToString
 @Table(name = "DAILY_RECORD")
 public class DailyRecord extends BaseEntity {
     @GeneratedValue
@@ -46,5 +47,8 @@ public class DailyRecord extends BaseEntity {
     @Column()
     private LocalDateTime awakeAt;
 
+    public void setExerciseAccTime(Long exerciseAccTime) {
+        this.exerciseAccTime = exerciseAccTime;
+    }
 
 }
