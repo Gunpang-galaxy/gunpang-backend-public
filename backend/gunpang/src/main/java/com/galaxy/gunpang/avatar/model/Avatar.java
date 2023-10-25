@@ -17,6 +17,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class Avatar extends BaseEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
     @JoinColumn(nullable = false)
