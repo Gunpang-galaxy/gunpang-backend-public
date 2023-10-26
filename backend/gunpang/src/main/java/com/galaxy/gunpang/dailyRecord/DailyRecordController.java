@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 
 @RequiredArgsConstructor
 @RestController
@@ -20,6 +22,22 @@ public class DailyRecordController {
 
     private final DailyRecordService dailyRecordService;
     private static final Logger logger = LoggerFactory.getLogger(DailyRecordController.class);
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "하루 기록 생성 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "403", description = "로그인 필요"),
+            @ApiResponse(responseCode = "404", description = "하루 기록 생성 실패"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    @PostMapping(value = "/records/createTodayRecord", consumes = "application/json;charset=UTF-8")
+    public ResponseEntity<?> createRecord(@RequestBody Map<String, Long> data) throws Exception {
+        Long userId = data.get("userId");
+        dailyRecordService.createRecord(userId);
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
 
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "수면 기록 성공"),

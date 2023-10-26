@@ -3,6 +3,7 @@ package com.galaxy.gunpang.dailyRecord.model;
 import com.galaxy.gunpang.common.model.BaseEntity;
 import com.galaxy.gunpang.dailyRecord.model.enums.FoodType;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -23,6 +24,7 @@ public class DailyRecord extends BaseEntity {
     @Column(nullable = false)
     private Long userId;
 
+    @CreatedDate
     @Column(nullable = false)
     private LocalDate recordDate;
 
@@ -69,5 +71,9 @@ public class DailyRecord extends BaseEntity {
 
     public void setDinnerFoodType(FoodType dinnerFoodType) {
         this.dinnerFoodType = dinnerFoodType;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }
