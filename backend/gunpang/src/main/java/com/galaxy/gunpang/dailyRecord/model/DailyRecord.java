@@ -51,4 +51,11 @@ public class DailyRecord extends BaseEntity {
         this.exerciseAccTime = exerciseAccTime;
     }
 
+    public void setSleepAt(LocalDateTime sleepAt) {
+        this.sleepAt = sleepAt;
+    }
+
+    public void setAwakeAt(LocalDateTime awakeAt) {
+        this.awakeAt = awakeAt;
+    }
 }
