@@ -7,7 +7,7 @@ import com.galaxy.gunpang.dailyRecord.model.enums.TimeToEat;
 import java.time.LocalDateTime;
 
 public interface DailyRecordService {
-    public void recordSleep(LocalDateTime sleepAt, LocalDateTime awakeAt);
+    void recordSleep(Long userId, LocalDateTime sleepAt, LocalDateTime awakeAt);
 
     void recordFood(Long userId, FoodType foodType, TimeToEat timeToEat);
 }

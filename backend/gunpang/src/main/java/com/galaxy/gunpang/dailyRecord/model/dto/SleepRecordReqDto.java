@@ -9,6 +9,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SleepRecordReqDto {
+
+    @NonNull
+    private Long userId;
     @NonNull
     private LocalDateTime sleepAt;
     @NonNull
