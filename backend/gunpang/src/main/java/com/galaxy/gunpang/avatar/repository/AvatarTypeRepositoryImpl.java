@@ -2,7 +2,6 @@ package com.galaxy.gunpang.avatar.repository;
 
 import com.galaxy.gunpang.avatar.model.AvatarType;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
