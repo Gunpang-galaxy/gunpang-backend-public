@@ -58,4 +58,16 @@ public class DailyRecord extends BaseEntity {
     public void setAwakeAt(LocalDateTime awakeAt) {
         this.awakeAt = awakeAt;
     }
+
+    public void setBreakfastFoodType(FoodType breakfastFoodType) {
+        this.breakfastFoodType = breakfastFoodType;
+    }
+
+    public void setLunchFoodType(FoodType lunchFoodType) {
+        this.lunchFoodType = lunchFoodType;
+    }
+
+    public void setDinnerFoodType(FoodType dinnerFoodType) {
+        this.dinnerFoodType = dinnerFoodType;
+    }
 }
