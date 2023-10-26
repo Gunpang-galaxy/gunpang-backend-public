@@ -43,6 +43,10 @@ public class Avatar extends BaseEntity {
     @OneToOne(mappedBy = "avatar", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Goal goal;
 
+    public void setName(String name){
+        this.name = name;
+    }
+
     @Builder
     public Avatar(Long id, User user, AvatarType avatarType, String name, Stage stage, Status status, byte healthPoint, LocalDate startedDate, LocalDate finishedDate, DeathCause deathCause, Goal goal){
         this.id = id;

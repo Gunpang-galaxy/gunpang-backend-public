@@ -1,6 +1,7 @@
 package com.galaxy.gunpang.avatar;
 
 import com.galaxy.gunpang.avatar.model.dto.AvatarGatchaResDto;
+import com.galaxy.gunpang.avatar.model.dto.AvatarNamingReqDto;
 import com.galaxy.gunpang.avatar.service.AvatarService;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMessage;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,10 +40,27 @@ public class AvatarController {
     })
     @PostMapping("/gatcha")
     public ResponseEntity<?> addRandom(@RequestParam("userId")Long userId){
-        log.debug("[POST] addRandom method test {}", userId);
+        log.debug("[POST] addRandom method {}", userId);
 
         AvatarGatchaResDto avatarGatchaResDto = avatarService.addRandomAvatar(userId);
 
         return ResponseEntity.ok().body(avatarGatchaResDto);
+    }
+
+    @Operation(summary = "아바타 이름 짓기", description = "아바타의 이름을 지어줍니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = ResponseBody.class)))
+            , @ApiResponse(responseCode = "400", description = "잘못된 필드, 값 요청")
+            , @ApiResponse(responseCode = "401", description = "로그인되지 않은 사용자")
+            , @ApiResponse(responseCode = "404", description = "존재하지 않는 아바타")
+            , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
+    })
+    @PutMapping("/name")
+    public ResponseEntity<?> naming(@RequestBody AvatarNamingReqDto avatarNamingReqDto){
+        log.debug("[PUT] naming method {}", avatarNamingReqDto);
+
+        avatarService.namingAvatar(avatarNamingReqDto);
+
+        return ResponseEntity.ok().build();
     }
 }
