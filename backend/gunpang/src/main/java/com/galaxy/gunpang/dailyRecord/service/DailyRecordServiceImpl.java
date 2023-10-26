@@ -23,20 +23,25 @@ public class DailyRecordServiceImpl implements DailyRecordService{
     private final DailyRecordRepository dailyRecordRepository;
     private static final Logger logger = LoggerFactory.getLogger(DailyRecordService.class);
     @Override
-    public void recordSleep(LocalDateTime sleepAt, LocalDateTime awakeAt) {
+    public void recordSleep(Long userId, LocalDateTime sleepAt, LocalDateTime awakeAt) {
         //오늘 날짜에 맞는 하루 기록 가져오기
         //하루 기록 수면 시각, 기상 시각 업데이트
-//        try{
-//            LocalDate today = LocalDate.now();
-//            DailyRecord dailyRecord = dailyRecordRepository.findByRecordDate(today);
-//            logger.debug(dailyRecord.toString());
-//            dailyRecord.setSleepAt(sleepAt);
-//            dailyRecord.setAwakeAt(awakeAt);
-//            logger.debug(dailyRecord.toString());
-//            dailyRecordRepository.save(dailyRecord);
-//        }catch(Exception e){
-//            e.getMessage();
-//        }
+        LocalDate today = LocalDate.now();
+        try {
+            DailyRecord dailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(userId, today).orElseThrow(
+                    () -> new DailyRecordNotFoundException(today)
+            );
+            logger.debug(dailyRecord.toString());
+            dailyRecord.setSleepAt(sleepAt);
+            dailyRecord.setAwakeAt(awakeAt);
+            logger.debug(dailyRecord.toString());
+            dailyRecordRepository.save(dailyRecord);
+
+        }catch (DailyRecordNotFoundException e){
+                throw new DailyRecordNotFoundException(today);
+        } catch(Exception e){
+            e.getMessage();
+        }
 
     }
 

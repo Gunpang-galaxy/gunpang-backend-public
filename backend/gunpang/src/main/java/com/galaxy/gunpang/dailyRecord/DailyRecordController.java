@@ -29,9 +29,9 @@ public class DailyRecordController {
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping(value = "/records/sleep", consumes = "application/json;charset=UTF-8")
-    public ResponseEntity<?> recordSleep(@RequestHeader("Authorization") String token, @RequestBody SleepRecordReqDto sleepRecordReqDto) throws Exception {
+    public ResponseEntity<?> recordSleep(@RequestBody SleepRecordReqDto sleepRecordReqDto) throws Exception {
 
-        dailyRecordService.recordSleep(sleepRecordReqDto.getSleepAt(),sleepRecordReqDto.getAwakeAt());
+        dailyRecordService.recordSleep(sleepRecordReqDto.getUserId(),sleepRecordReqDto.getSleepAt(),sleepRecordReqDto.getAwakeAt());
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
