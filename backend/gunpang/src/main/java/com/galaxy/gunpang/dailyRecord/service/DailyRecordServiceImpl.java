@@ -22,6 +22,22 @@ public class DailyRecordServiceImpl implements DailyRecordService{
 
     private final DailyRecordRepository dailyRecordRepository;
     private static final Logger logger = LoggerFactory.getLogger(DailyRecordService.class);
+
+    @Override
+    public void createRecord(Long userId) {
+        //LocalDate today = LocalDate.now();
+        try{
+            DailyRecord dailyRecord = new DailyRecord();
+            dailyRecord.setUserId(userId);
+            logger.debug(dailyRecord.toString());
+            dailyRecordRepository.save(dailyRecord);
+
+        } catch(Exception e){
+            e.getMessage();
+        }
+
+    }
+
     @Override
     public void recordSleep(Long userId, LocalDateTime sleepAt, LocalDateTime awakeAt) {
         //오늘 날짜에 맞는 하루 기록 가져오기
