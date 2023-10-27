@@ -14,6 +14,7 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public LogInResDto createTokens(String googleId) {
         return LogInResDto.builder()
+                .googleId(googleId)
                 .accessToken(jwtUtil.createAccessToken(googleId))
                 .refreshToken(jwtUtil.createRefreshToken(googleId))
                 .build();

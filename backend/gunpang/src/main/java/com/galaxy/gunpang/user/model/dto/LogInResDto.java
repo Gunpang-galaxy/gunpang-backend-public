@@ -11,6 +11,8 @@ import javax.validation.constraints.NotNull;
 public class LogInResDto {
 
     @NotNull
+    private String googleId;
+    @NotNull
     private String accessToken;
     @NotNull
     private String refreshToken;
