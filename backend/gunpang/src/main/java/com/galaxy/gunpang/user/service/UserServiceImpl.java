@@ -1,10 +1,12 @@
 package com.galaxy.gunpang.user.service;
 
 import com.galaxy.gunpang.user.model.User;
+import com.galaxy.gunpang.user.model.dto.LogInResDto;
 import com.galaxy.gunpang.user.model.dto.SignUpReqDto;
 import com.galaxy.gunpang.user.model.dto.SignUpResDto;
 import com.galaxy.gunpang.user.model.enums.Gender;
 import com.galaxy.gunpang.user.repository.UserRepository;
+import com.galaxy.gunpang.user.utils.JwtUtil;
 import com.galaxy.gunpang.user.utils.UserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserUtil userUtil;
+    private final JwtUtil jwtUtil;
 
     @Override
     public SignUpResDto addUser(SignUpReqDto signUpReqDto) {
@@ -45,5 +48,20 @@ public class UserServiceImpl implements UserService {
         return SignUpResDto.builder()
                 .googleId(newUser.getGoogleId())
                 .build();
+    }
+
+    @Override
+    public LogInResDto getTokenByGoogleId(String googleId) {
+        userRepository.getIdByGoogleId(googleId);
+
+        return LogInResDto.builder()
+                .accessToken(jwtUtil.createAccessToken(googleId))
+                .refreshToken(jwtUtil.createRefreshToken(googleId))
+                .build();
+    }
+
+    @Override
+    public boolean existsByGoogleId(String googleId) {
+        return userRepository.getIdByGoogleId(googleId) != null;
     }
 }

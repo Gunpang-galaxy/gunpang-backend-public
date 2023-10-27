@@ -11,8 +11,8 @@ import javax.validation.constraints.NotNull;
 public class LogInResDto {
 
     @NotNull
-    private String AccessToken;
+    private String accessToken;
     @NotNull
-    private String RefreshToken;
+    private String refreshToken;
 
 }
