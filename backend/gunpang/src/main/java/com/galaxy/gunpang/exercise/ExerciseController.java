@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
-@RequestMapping("/record/exercise")
+@RequestMapping("/records/exercise")
 @RestController
 public class ExerciseController {
 
@@ -26,9 +26,9 @@ public class ExerciseController {
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping(consumes = "application/json;charset=UTF-8")
-    public ResponseEntity<?> recordExercise(@RequestHeader("Authorization") String token, @RequestBody ExerciseRecordReqDto exerciseRecordReqDto) throws Exception {
+    public ResponseEntity<?> recordExercise(@RequestBody ExerciseRecordReqDto exerciseRecordReqDto) throws Exception {
 
-        exerciseService.recordExercise(exerciseRecordReqDto.getStartedTime(),exerciseRecordReqDto.getFinishedTime(),exerciseRecordReqDto.getExerciseIntensity());
+        exerciseService.recordExercise(exerciseRecordReqDto.getUserId(),exerciseRecordReqDto.getStartedTime(),exerciseRecordReqDto.getFinishedTime(),exerciseRecordReqDto.getExerciseIntensity());
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

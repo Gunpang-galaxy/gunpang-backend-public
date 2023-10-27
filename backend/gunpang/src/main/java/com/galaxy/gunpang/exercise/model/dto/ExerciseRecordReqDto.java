@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 public class ExerciseRecordReqDto {
 
     @NonNull
+    private Long userId;
+
+    @NonNull
     private LocalDateTime startedTime;
     @NonNull
     private LocalDateTime finishedTime;
