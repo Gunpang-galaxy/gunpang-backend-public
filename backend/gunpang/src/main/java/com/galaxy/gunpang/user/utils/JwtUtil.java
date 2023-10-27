@@ -94,4 +94,8 @@ public class JwtUtil {
         }
         return null;
     }
+
+    public Long getRefreshTokenValidTimeAsDay() {
+        return (REFRESH_TOKEN_VALID_TIME / (24 * 60 * 60 * 1000L));
+    }
 }

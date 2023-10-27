@@ -55,6 +55,7 @@ public class UserServiceImpl implements UserService {
         userRepository.getIdByGoogleId(googleId);
 
         return LogInResDto.builder()
+                .googleId(googleId)
                 .accessToken(jwtUtil.createAccessToken(googleId))
                 .refreshToken(jwtUtil.createRefreshToken(googleId))
                 .build();
