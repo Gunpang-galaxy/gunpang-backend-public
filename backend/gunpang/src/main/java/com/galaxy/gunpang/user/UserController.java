@@ -23,7 +23,7 @@ public class UserController {
 
     private final UserServiceImpl userService;
 
-    @Operation(summary = "사용자 회원가입", description = "사용자")
+    @Operation(summary = "사용자 회원가입", description = "사용자 회원가입을 합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = SignUpResDto.class)))
             , @ApiResponse(responseCode = "400", description = "잘못된 필드, 값 요청")
