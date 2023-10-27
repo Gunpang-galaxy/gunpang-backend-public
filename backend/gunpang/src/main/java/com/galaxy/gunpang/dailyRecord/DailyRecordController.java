@@ -1,9 +1,11 @@
 package com.galaxy.gunpang.dailyRecord;
 
+import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordOnCalendarResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.FoodRecordReqDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.SleepRecordReqDto;
 import com.galaxy.gunpang.dailyRecord.service.DailyRecordService;
+import com.galaxy.gunpang.exercise.service.ExerciseService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import java.util.Map;
 public class DailyRecordController {
 
     private final DailyRecordService dailyRecordService;
+    private final ExerciseService exerciseService;
     private static final Logger logger = LoggerFactory.getLogger(DailyRecordController.class);
 
     @ApiResponses(value = {
@@ -84,6 +87,15 @@ public class DailyRecordController {
         CheckDailyRecordResDto checkDailyRecordResDto = dailyRecordService.checkDailyRecord(userId, date);
 
         return new ResponseEntity<>(checkDailyRecordResDto, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/records/calendar", consumes = "application/json;charset=UTF-8")
+    public ResponseEntity<?> checkDailyRecordOnCalendar(@RequestParam String date, @RequestBody Map<String, Long> data){
+        Long userId = data.get("userId");
+
+        CheckDailyRecordOnCalendarResDto checkDailyRecordOnCalendarResDto = dailyRecordService.checkDailyRecordOnCalendar(userId, date);
+
+        return new ResponseEntity<>(checkDailyRecordOnCalendarResDto, HttpStatus.OK);
     }
 
 }

@@ -51,4 +51,5 @@ public class ExerciseServiceImpl implements ExerciseService{
            e.getMessage();
        }
     }
+
 }

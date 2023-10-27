@@ -2,23 +2,32 @@ package com.galaxy.gunpang.dailyRecord.service;
 
 import com.galaxy.gunpang.dailyRecord.exception.DailyRecordNotFoundException;
 import com.galaxy.gunpang.dailyRecord.model.DailyRecord;
+import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordOnCalendarResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordResDto;
 import com.galaxy.gunpang.dailyRecord.model.enums.FoodType;
 import com.galaxy.gunpang.dailyRecord.model.enums.TimeToEat;
 import com.galaxy.gunpang.dailyRecord.repository.DailyRecordRepository;
+import com.galaxy.gunpang.exercise.exception.ExerciseNotFoundException;
+import com.galaxy.gunpang.exercise.model.Exercise;
+import com.galaxy.gunpang.exercise.repository.ExerciseRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
 public class DailyRecordServiceImpl implements DailyRecordService{
 
     private final DailyRecordRepository dailyRecordRepository;
+    private final ExerciseRepository exerciseRepository;
+
     private static final Logger logger = LoggerFactory.getLogger(DailyRecordService.class);
 
     @Override
@@ -116,5 +125,46 @@ public class DailyRecordServiceImpl implements DailyRecordService{
                 .build();
 
         return checkDailyRecordResDto;
+    }
+    public CheckDailyRecordOnCalendarResDto checkDailyRecordOnCalendar(Long userId, String date){
+
+        //해당 날짜에 맞는 기록 가져와보기
+        //없으면 오류, 있으면 그 기록에서 정보 담아서 전달
+        //변환해줘야 가능
+        LocalDate localDate = LocalDate.parse(date);
+
+        DailyRecord dailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(userId, localDate).orElseThrow(
+                () -> new DailyRecordNotFoundException(localDate)
+        );
+
+        List<Exercise> exercises = exerciseRepository.getDailyExerciseRecordOnDateByRecordId(dailyRecord.getId()).orElseThrow(
+                //비어있어도 에러 안남... 안나는게 맞는듯
+        );
+        logger.debug(exercises.toString());
+        List<CheckDailyRecordOnCalendarResDto.ExerciseOnDate> exerciseOnDates = new ArrayList<>();
+
+        //운돌들 가져온 거에서 운동 시간 계산해주고 리스트로 넣어야될듯
+
+        for (int i=0;i< exercises.size();i++) {
+            //운동 시간 계산
+            long exerciseAccTime = Duration.between(exercises.get(i).getStartedTime(),exercises.get(i).getFinishedTime()).toMinutes();
+            exerciseOnDates.add(CheckDailyRecordOnCalendarResDto.ExerciseOnDate.builder()
+                    .exerciseAccTime(exerciseAccTime)
+                    .exerciseIntensity(exercises.get(i).getExerciseIntensity())
+                    .build());
+        }
+        logger.debug(dailyRecord.toString());
+        CheckDailyRecordOnCalendarResDto checkDailyRecordOnCalendarResDto = CheckDailyRecordOnCalendarResDto.builder()
+                .breakfastFoodType(dailyRecord.getBreakfastFoodType())
+                .lunchFoodType(dailyRecord.getLunchFoodType())
+                .dinnerFoodType(dailyRecord.getDinnerFoodType())
+                .exerciseTime(dailyRecord.getExerciseAccTime())
+                .sleepAt(dailyRecord.getSleepAt())
+                .awakeAt(dailyRecord.getAwakeAt())
+                .exercisesOnDate(exerciseOnDates)
+                .build();
+
+        return checkDailyRecordOnCalendarResDto;
+
     }
 }
