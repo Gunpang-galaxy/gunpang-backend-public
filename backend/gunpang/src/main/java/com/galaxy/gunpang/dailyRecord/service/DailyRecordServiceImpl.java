@@ -1,12 +1,11 @@
 package com.galaxy.gunpang.dailyRecord.service;
 
-import com.galaxy.gunpang.avatar.exception.AvatarNotFoundException;
 import com.galaxy.gunpang.dailyRecord.exception.DailyRecordNotFoundException;
 import com.galaxy.gunpang.dailyRecord.model.DailyRecord;
+import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordResDto;
 import com.galaxy.gunpang.dailyRecord.model.enums.FoodType;
 import com.galaxy.gunpang.dailyRecord.model.enums.TimeToEat;
 import com.galaxy.gunpang.dailyRecord.repository.DailyRecordRepository;
-import com.galaxy.gunpang.exercise.service.ExerciseService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -95,5 +93,28 @@ public class DailyRecordServiceImpl implements DailyRecordService{
             e.getMessage();
         }
 
+    }
+
+    @Override
+    public CheckDailyRecordResDto checkDailyRecord(Long userId, String date) {
+        //해당 날짜에 맞는 기록 가져와보기
+        //없으면 오류, 있으면 그 기록에서 정보 담아서 전달
+        //변환해줘야 가능
+        LocalDate localDate = LocalDate.parse(date);
+        CheckDailyRecordResDto checkDailyRecordResDto = null;
+        DailyRecord dailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(userId, localDate).orElseThrow(
+                    () -> new DailyRecordNotFoundException(localDate)
+        );
+        logger.debug(dailyRecord.toString());
+        checkDailyRecordResDto = CheckDailyRecordResDto.builder()
+                .breakfastFoodType(dailyRecord.getBreakfastFoodType())
+                .lunchFoodType(dailyRecord.getLunchFoodType())
+                .dinnerFoodType(dailyRecord.getDinnerFoodType())
+                .exerciseTime(dailyRecord.getExerciseAccTime())
+                .sleepAt(dailyRecord.getSleepAt())
+                .awakeAt(dailyRecord.getAwakeAt())
+                .build();
+
+        return checkDailyRecordResDto;
     }
 }

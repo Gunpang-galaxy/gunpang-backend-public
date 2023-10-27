@@ -1,9 +1,9 @@
 package com.galaxy.gunpang.dailyRecord;
 
+import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.FoodRecordReqDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.SleepRecordReqDto;
 import com.galaxy.gunpang.dailyRecord.service.DailyRecordService;
-import com.galaxy.gunpang.exercise.service.ExerciseService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -69,6 +69,21 @@ public class DailyRecordController {
         dailyRecordService.recordFood(foodRecordReqDto.getUserId(), foodRecordReqDto.getFoodType(),foodRecordReqDto.getTimeToEat());
 
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "하루 기록 가져오기 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "403", description = "로그인 필요"),
+            @ApiResponse(responseCode = "404", description = "하루 기록이 존재하지 않음"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    @GetMapping(value = "/records", consumes = "application/json;charset=UTF-8")
+    public ResponseEntity<?> checkDailyRecord(@RequestParam String date, @RequestBody Map<String, Long> data){
+        Long userId = data.get("userId");
+        CheckDailyRecordResDto checkDailyRecordResDto = dailyRecordService.checkDailyRecord(userId, date);
+
+        return new ResponseEntity<>(checkDailyRecordResDto, HttpStatus.OK);
     }
 
 }
