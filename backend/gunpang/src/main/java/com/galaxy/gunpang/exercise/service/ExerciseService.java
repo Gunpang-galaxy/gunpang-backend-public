@@ -6,5 +6,5 @@ import java.time.LocalDateTime;
 
 public interface ExerciseService {
 
-    public void recordExercise(LocalDateTime startedTime, LocalDateTime finishedTime, ExerciseIntensity exerciseIntensity) throws Exception;
+    public void recordExercise(Long userId, LocalDateTime startedTime, LocalDateTime finishedTime, ExerciseIntensity exerciseIntensity) throws Exception;
 }
