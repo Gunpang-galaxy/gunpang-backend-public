@@ -32,8 +32,8 @@ public class Exercise extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime finishedTime;
 
-    @Column(nullable = false)
-    private int heartRate;
+    @Column()
+    private Integer heartRate;
 
     @Builder
     public Exercise(Long dailyRecordId, ExerciseIntensity exerciseIntensity, LocalDateTime startedTime, LocalDateTime finishedTime) {

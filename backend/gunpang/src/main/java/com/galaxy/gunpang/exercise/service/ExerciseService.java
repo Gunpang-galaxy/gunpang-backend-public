@@ -7,4 +7,5 @@ import java.time.LocalDateTime;
 public interface ExerciseService {
 
     public void recordExercise(Long userId, LocalDateTime startedTime, LocalDateTime finishedTime, ExerciseIntensity exerciseIntensity) throws Exception;
+
 }
