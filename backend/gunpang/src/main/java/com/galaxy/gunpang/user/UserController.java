@@ -40,7 +40,7 @@ public class UserController {
         // 1. googleId로 회원인지 확인
         // 2. 아니면 UserNotFoundException (-> 회원가입 페이지로)
         // 3. 회원이면 로그인 + 토큰 발급
-        if (userService.existsByGoogleId(googleId)) {
+        if (userService.existsByGoogleId(googleId).isUser()) {
             LogInResDto logInResDto = jwtService.createTokens(googleId);
             redisService.setTokens(logInResDto);
             return ResponseEntity.ok().body(logInResDto);
@@ -65,7 +65,7 @@ public class UserController {
 
     @Operation(summary = "JWT 토큰을 사용하여 UserId 반환", description = "JWT 토큰을 사용하여 UserId를 반환합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = LogInResDto.class)))
+            @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = UserIdResDto.class)))
             , @ApiResponse(responseCode = "400", description = "잘못된 필드, 값 요청")
             , @ApiResponse(responseCode = "404", description = "존재하지 않는 사용자")
             , @ApiResponse(responseCode = "500", description = "잘못된 JWT Token")
@@ -85,6 +85,34 @@ public class UserController {
         }
 
         return ResponseEntity.ok().body(userIdResDto);
+    }
+
+    @Operation(summary = "JWT 토큰 검증", description = "JWT 토큰이 유효한지 검증합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = UserExistenceResDto.class)))
+            , @ApiResponse(responseCode = "400", description = "잘못된 필드, 값 요청")
+            , @ApiResponse(responseCode = "401", description = "유효하지 않은 JWT 토큰")
+            , @ApiResponse(responseCode = "404", description = "존재하지 않는 사용자")
+            , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
+    })
+    @GetMapping("/jwt/validate")
+    public ResponseEntity<?> validateToken(@RequestParam("JWTToken") String accessToken){
+        log.debug("[GET] validateToken method {}", accessToken);
+
+        // 1. 토큰 자체가 유효한지
+        TokenValidationResDto tokenValidationResDto = jwtService.validateToken(accessToken);
+        if (tokenValidationResDto.isValid()) {
+            // 2. 있는 유저인지
+            String googleId = jwtService.getGoogleId(accessToken).getGoogleId();
+            UserExistenceResDto userExistenceResDto = userService.existsByGoogleId(googleId);
+            if (userExistenceResDto.isUser()) {
+                return ResponseEntity.ok().body(userExistenceResDto);
+            } else {
+                throw new UserNotFoundException(googleId);
+            }
+        } else {
+            return ResponseEntity.badRequest().body("유효하지 않은 토큰입니다.");
+        }
     }
 
 }

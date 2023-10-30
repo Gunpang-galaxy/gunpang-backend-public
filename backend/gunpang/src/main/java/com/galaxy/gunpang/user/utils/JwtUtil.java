@@ -54,12 +54,12 @@ public class JwtUtil {
             return true;
         } catch (SecurityException e) {
             throw new InvalidJwtTokenException("잘못된 JWT 서명입니다.");
-        } catch (ExpiredJwtException e){
-            throw new InvalidJwtTokenException("만료된 JWT 토큰입니다.");
         } catch (UnsupportedJwtException e) {
             throw new InvalidJwtTokenException("지원하지 않는 JWT 토큰입니다.");
         } catch (IllegalArgumentException | MalformedJwtException e) {
             throw new InvalidJwtTokenException("잘못된 JWT 토큰입니다.");
+        } catch (ExpiredJwtException e){
+            throw new InvalidJwtTokenException("만료된 JWT 토큰입니다.");
         } catch (Exception e){
             throw new InvalidJwtTokenException("유효하지 않은 JWT 토큰입니다.");
         }
