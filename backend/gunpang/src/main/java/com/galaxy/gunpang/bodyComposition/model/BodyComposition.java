@@ -5,12 +5,13 @@ import com.galaxy.gunpang.user.model.User;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Optional;
 
 @Entity
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
+@AllArgsConstructor
 @Table(name = "BODY_COMPOSITION")
 public class BodyComposition extends BaseEntity {
     @GeneratedValue
@@ -35,4 +36,13 @@ public class BodyComposition extends BaseEntity {
 
     @Column(columnDefinition = "float", nullable = false)
     private float bodyWaterMass;
+
+    public BodyComposition(User user, float weight, float muscleMass, float fatMass, float fatMassPct, float bodyWaterMass) {
+        this.user = user;
+        this.weight = weight;
+        this.bodyWaterMass = bodyWaterMass;
+        this.muscleMass = muscleMass;
+        this.fatMass = fatMass;
+        this.fatMassPct = fatMassPct;
+    }
 }
