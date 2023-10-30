@@ -2,6 +2,7 @@ package com.galaxy.gunpang.user.service;
 
 import com.galaxy.gunpang.user.model.dto.GoogleIdResDto;
 import com.galaxy.gunpang.user.model.dto.LogInResDto;
+import com.galaxy.gunpang.user.model.dto.TokenValidationResDto;
 import com.galaxy.gunpang.user.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,5 +27,14 @@ public class JwtServiceImpl implements JwtService {
         return GoogleIdResDto.builder()
                 .googleId(jwtUtil.getGoogleIdFromToken(accessToken))
                 .build();
+    }
+
+    @Override
+    public TokenValidationResDto validateToken(String accessToken) {
+
+        return TokenValidationResDto.builder()
+                .isValid(jwtUtil.validateToken(accessToken))
+                .build();
+
     }
 }
