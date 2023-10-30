@@ -11,4 +11,6 @@ public interface UserService {
     UserExistenceResDto existsByGoogleId(String googleId);
 
     UserIdResDto getIdByGoogleId(String googleId);
+
+    UserIdResDto getIdByToken(String accessToken);
 }

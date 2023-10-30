@@ -74,15 +74,7 @@ public class UserController {
     public ResponseEntity<?> getUserIdByToken(@RequestParam("JWTToken") String accessToken){
         log.debug("[GET] getUserIdByToken method {}", accessToken);
 
-        // 1. accessToken에서 googleId 추출
-        GoogleIdResDto googleIdResDto = jwtService.getGoogleId(accessToken);
-
-        // 2. googleId로 userId 찾기
-        String googleId = googleIdResDto.getGoogleId();
-        UserIdResDto userIdResDto = userService.getIdByGoogleId(googleId);
-        if (userIdResDto == null || userIdResDto.getId() == null) {
-            throw new UserNotFoundException(googleId);
-        }
+        UserIdResDto userIdResDto = userService.getIdByToken(accessToken);
 
         return ResponseEntity.ok().body(userIdResDto);
     }
