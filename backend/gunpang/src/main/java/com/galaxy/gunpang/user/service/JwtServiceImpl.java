@@ -1,5 +1,6 @@
 package com.galaxy.gunpang.user.service;
 
+import com.galaxy.gunpang.user.model.dto.GoogleIdResDto;
 import com.galaxy.gunpang.user.model.dto.LogInResDto;
 import com.galaxy.gunpang.user.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,13 @@ public class JwtServiceImpl implements JwtService {
                 .googleId(googleId)
                 .accessToken(jwtUtil.createAccessToken(googleId))
                 .refreshToken(jwtUtil.createRefreshToken(googleId))
+                .build();
+    }
+
+    @Override
+    public GoogleIdResDto getGoogleId(String accessToken) {
+        return GoogleIdResDto.builder()
+                .googleId(jwtUtil.getGoogleIdFromToken(accessToken))
                 .build();
     }
 }
