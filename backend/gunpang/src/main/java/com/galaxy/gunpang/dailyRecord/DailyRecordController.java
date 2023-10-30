@@ -1,9 +1,6 @@
 package com.galaxy.gunpang.dailyRecord;
 
-import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordOnCalendarResDto;
-import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordResDto;
-import com.galaxy.gunpang.dailyRecord.model.dto.FoodRecordReqDto;
-import com.galaxy.gunpang.dailyRecord.model.dto.SleepRecordReqDto;
+import com.galaxy.gunpang.dailyRecord.model.dto.*;
 import com.galaxy.gunpang.dailyRecord.service.DailyRecordService;
 import com.galaxy.gunpang.exercise.service.ExerciseService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -15,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -53,6 +51,20 @@ public class DailyRecordController {
     public ResponseEntity<?> recordSleep(@RequestBody SleepRecordReqDto sleepRecordReqDto) throws Exception {
 
         dailyRecordService.recordSleep(sleepRecordReqDto.getUserId(),sleepRecordReqDto.getSleepAt(),sleepRecordReqDto.getAwakeAt());
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "삼성 헬스 수면 기록 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청. 기록 날짜와 오늘이 다름"),
+            @ApiResponse(responseCode = "403", description = "로그인 필요"),
+            @ApiResponse(responseCode = "404", description = "삼성 헬스 수면 기록 실패"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    @PostMapping(value = "/records/sleep/samsung", consumes = "application/json;charset=UTF-8")
+    public ResponseEntity<?> recordSleepWithHealthConnectApi(@RequestBody SleepRecordApiReqDto sleepRecordApiReqDto) throws Exception {
+        dailyRecordService.recordSleepWithHealthConnectApi(sleepRecordApiReqDto);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
