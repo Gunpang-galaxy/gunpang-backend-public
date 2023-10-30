@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserIdResDto getIdByToken(String accessToken) {
         // 1. accessToken에서 googleId 추출
-        String googleId = jwtUtil.getGoogleIdFromToken(accessToken);
+        String googleId = jwtUtil.getGoogleIdFromToken(jwtUtil.removeBearer(accessToken));
         // 2. googleId로 userId 찾기
         return UserIdResDto.builder()
                 .id(userRepository.getIdByGoogleId(googleId))
