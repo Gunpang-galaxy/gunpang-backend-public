@@ -1,9 +1,12 @@
 package com.galaxy.gunpang.dailyRecord.service;
 
+import com.galaxy.gunpang.common.exception.BadRequestException;
 import com.galaxy.gunpang.dailyRecord.exception.DailyRecordNotFoundException;
+import com.galaxy.gunpang.dailyRecord.exception.RecordDateNotTodayException;
 import com.galaxy.gunpang.dailyRecord.model.DailyRecord;
 import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordOnCalendarResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordResDto;
+import com.galaxy.gunpang.dailyRecord.model.dto.SleepRecordApiReqDto;
 import com.galaxy.gunpang.dailyRecord.model.enums.FoodType;
 import com.galaxy.gunpang.dailyRecord.model.enums.TimeToEat;
 import com.galaxy.gunpang.dailyRecord.repository.DailyRecordRepository;
@@ -20,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -166,5 +170,33 @@ public class DailyRecordServiceImpl implements DailyRecordService{
 
         return checkDailyRecordOnCalendarResDto;
 
+    }
+
+    @Override
+    public void recordSleepWithHealthConnectApi(SleepRecordApiReqDto sleepRecordApiReqDto) {
+        Long userId = sleepRecordApiReqDto.getUserId();
+        LocalDate localDate = sleepRecordApiReqDto.getRecordDate();
+
+        if (!localDate.equals(LocalDate.now())){
+            throw new RecordDateNotTodayException();
+        }
+        DailyRecord dailyRecord;
+        try {
+            dailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(userId, localDate).orElseThrow(
+                    () -> new DailyRecordNotFoundException(localDate)
+            );
+         }catch (DailyRecordNotFoundException e){
+            dailyRecord = new DailyRecord();
+            dailyRecord.setUserId(userId);
+            logger.debug(dailyRecord.toString());
+            dailyRecordRepository.save(dailyRecord);
+        }
+
+        dailyRecord.setSleepAt(sleepRecordApiReqDto.getSleepAt());
+        dailyRecord.setAwakeAt(sleepRecordApiReqDto.getAwakeAt());
+
+        logger.debug(dailyRecord.toString());
+
+        dailyRecordRepository.save(dailyRecord);
     }
 }
