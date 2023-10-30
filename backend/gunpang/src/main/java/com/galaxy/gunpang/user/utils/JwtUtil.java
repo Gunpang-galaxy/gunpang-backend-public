@@ -31,8 +31,6 @@ public class JwtUtil {
         return createToken(googleId, REFRESH_TOKEN_VALID_TIME);
     }
 
-    // TODO : refreshToken으로 accessToken 재발급
-
     public String createToken(String googleId, Long validTime) {
         Claims claims = Jwts.claims().setSubject(googleId);
 
@@ -62,6 +60,15 @@ public class JwtUtil {
             throw new InvalidJwtTokenException("만료된 JWT 토큰입니다.");
         } catch (Exception e){
             throw new InvalidJwtTokenException("유효하지 않은 JWT 토큰입니다.");
+        }
+    }
+
+    public String recreateAccessToken(String refreshToken) {
+        if (validateToken(refreshToken)) {
+            String googleId = getGoogleIdFromToken(refreshToken);
+            return createAccessToken(googleId);
+        } else {
+            throw new InvalidJwtTokenException("유효하지 않은 리프레시 토큰입니다.");
         }
     }
 

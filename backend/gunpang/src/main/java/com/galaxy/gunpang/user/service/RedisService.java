@@ -1,5 +1,6 @@
 package com.galaxy.gunpang.user.service;
 
+import com.galaxy.gunpang.user.model.dto.AccessTokenResDto;
 import com.galaxy.gunpang.user.model.dto.LogInResDto;
 
 public interface RedisService {
@@ -11,4 +12,6 @@ public interface RedisService {
     String getTokens(String id);
 
     void updateTokens(String id, String tokens);
+
+    AccessTokenResDto updateTokens(String accessToken);
 }

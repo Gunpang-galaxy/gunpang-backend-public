@@ -84,8 +84,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = UserExistenceResDto.class)))
             , @ApiResponse(responseCode = "400", description = "잘못된 필드, 값 요청")
             , @ApiResponse(responseCode = "401", description = "유효하지 않은 JWT 토큰")
-            , @ApiResponse(responseCode = "404", description = "존재하지 않는 사용자")
-            , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
+            , @ApiResponse(responseCode = "500", description = "잘못된 JWT Token")
     })
     @GetMapping("/jwt/validate")
     public ResponseEntity<?> validateToken(@RequestParam("JWTToken") String accessToken){
@@ -105,6 +104,22 @@ public class UserController {
         } else {
             return ResponseEntity.badRequest().body("유효하지 않은 토큰입니다.");
         }
+    }
+
+    @Operation(summary = "JWT 토큰 재발급", description = "refresh token을 이용하여 access token을 갱신합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = AccessTokenResDto.class)))
+            , @ApiResponse(responseCode = "400", description = "잘못된 필드, 값 요청")
+            , @ApiResponse(responseCode = "404", description = "존재하지 않는 사용자")
+            , @ApiResponse(responseCode = "500", description = "잘못된 JWT Token")
+    })
+    @GetMapping("/jwt/recreate")
+    public ResponseEntity<?> recreateToken(@RequestParam("JWTToken") String accessToken){
+        log.debug("[GET] recreateToken method {}", accessToken);
+
+        AccessTokenResDto accessTokenResDto = redisService.updateTokens(accessToken);
+
+        return ResponseEntity.ok().body(accessTokenResDto);
     }
 
 }
