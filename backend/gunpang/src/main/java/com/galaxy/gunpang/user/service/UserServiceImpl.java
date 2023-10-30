@@ -1,6 +1,7 @@
 package com.galaxy.gunpang.user.service;
 
 import com.galaxy.gunpang.user.model.User;
+import com.galaxy.gunpang.user.model.dto.UserIdResDto;
 import com.galaxy.gunpang.user.model.dto.LogInResDto;
 import com.galaxy.gunpang.user.model.dto.SignUpReqDto;
 import com.galaxy.gunpang.user.model.dto.SignUpResDto;
@@ -64,5 +65,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean existsByGoogleId(String googleId) {
         return userRepository.getIdByGoogleId(googleId) != null;
+    }
+
+    @Override
+    public UserIdResDto getIdByGoogleId(String googleId) {
+        return UserIdResDto.builder()
+                .id(userRepository.getIdByGoogleId(googleId))
+                .build();
     }
 }
