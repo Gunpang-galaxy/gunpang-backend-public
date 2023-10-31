@@ -17,8 +17,8 @@ public class CheckDailyRecordOnCalendarResDto {
     private FoodType lunchFoodType;
     private FoodType dinnerFoodType;
     private Long exerciseTime;
-    private LocalDateTime sleepAt;
-    private LocalDateTime awakeAt;
+    private String sleepAt;
+    private String awakeAt;
     private List<ExerciseOnDate> exercisesOnDate;
 
 

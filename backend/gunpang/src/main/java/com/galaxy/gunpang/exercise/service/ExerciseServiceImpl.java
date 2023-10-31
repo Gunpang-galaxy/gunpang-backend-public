@@ -35,7 +35,7 @@ public class ExerciseServiceImpl implements ExerciseService{
            );
             logger.debug(dailyRecord.toString());
             //운동 시간 계산
-            long exerciseAccTime = Duration.between(startedTime,finishedTime).toMinutes();
+            long exerciseAccTime = Duration.between(startedTime,finishedTime).toSeconds();
 
             dailyRecord.setExerciseAccTime(exerciseAccTime);
             //하루 기록 업데이트

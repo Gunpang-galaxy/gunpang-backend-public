@@ -119,13 +119,22 @@ public class DailyRecordServiceImpl implements DailyRecordService {
                 () -> new DailyRecordNotFoundException(localDate)
         );
         logger.debug(dailyRecord.toString());
+
+        Duration duration = Duration.ofSeconds(dailyRecord.getExerciseAccTime());
+
+        String formattedTime = String.format("%02d:%02d:%02d",
+                duration.toHours(),
+                duration.toMinutesPart(),
+                duration.toSecondsPart());
+
+
         checkDailyRecordResDto = CheckDailyRecordResDto.builder()
                 .breakfastFoodType(dailyRecord.getBreakfastFoodType())
                 .lunchFoodType(dailyRecord.getLunchFoodType())
                 .dinnerFoodType(dailyRecord.getDinnerFoodType())
-                .exerciseTime(dailyRecord.getExerciseAccTime())
-                .sleepAt(dailyRecord.getSleepAt())
-                .awakeAt(dailyRecord.getAwakeAt())
+                .exerciseTime(formattedTime)
+                .sleepAt(dailyRecord.getSleepAt().toString())
+                .awakeAt(dailyRecord.getAwakeAt().toString())
                 .build();
 
         return checkDailyRecordResDto;
@@ -152,7 +161,7 @@ public class DailyRecordServiceImpl implements DailyRecordService {
 
         for (int i = 0; i < exercises.size(); i++) {
             //운동 시간 계산
-            long exerciseAccTime = Duration.between(exercises.get(i).getStartedTime(), exercises.get(i).getFinishedTime()).toMinutes();
+            long exerciseAccTime = Duration.between(exercises.get(i).getStartedTime(), exercises.get(i).getFinishedTime()).toSeconds();
             exerciseOnDates.add(CheckDailyRecordOnCalendarResDto.ExerciseOnDate.builder()
                     .exerciseAccTime(exerciseAccTime)
                     .exerciseIntensity(exercises.get(i).getExerciseIntensity())
@@ -164,8 +173,8 @@ public class DailyRecordServiceImpl implements DailyRecordService {
                 .lunchFoodType(dailyRecord.getLunchFoodType())
                 .dinnerFoodType(dailyRecord.getDinnerFoodType())
                 .exerciseTime(dailyRecord.getExerciseAccTime())
-                .sleepAt(dailyRecord.getSleepAt())
-                .awakeAt(dailyRecord.getAwakeAt())
+                .sleepAt(dailyRecord.getSleepAt().toString())
+                .awakeAt(dailyRecord.getAwakeAt().toString())
                 .exercisesOnDate(exerciseOnDates)
                 .build();
 
