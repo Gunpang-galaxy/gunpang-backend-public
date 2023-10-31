@@ -49,10 +49,10 @@ public class DailyRecordController {
             @ApiResponse(responseCode = "404", description = "수면 기록 실패"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @PostMapping(value = "/records/sleep", consumes = "application/json;charset=UTF-8")
-    public ResponseEntity<?> recordSleep(@RequestBody SleepRecordReqDto sleepRecordReqDto) throws Exception {
-
-        dailyRecordService.recordSleep(sleepRecordReqDto.getUserId(),sleepRecordReqDto.getSleepAt(),sleepRecordReqDto.getAwakeAt());
+    @PostMapping(value = "/records/sleep")
+    public ResponseEntity<?> recordSleep(@RequestHeader("Authorization") String token, @RequestBody SleepRecordReqDto sleepRecordReqDto) throws Exception {
+        Long userId = userService.getIdByToken(token).getId();
+        dailyRecordService.recordSleep(userId,sleepRecordReqDto.getSleepAt(),sleepRecordReqDto.getAwakeAt());
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
