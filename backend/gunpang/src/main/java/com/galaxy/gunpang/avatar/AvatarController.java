@@ -3,6 +3,7 @@ package com.galaxy.gunpang.avatar;
 import com.galaxy.gunpang.avatar.model.dto.AvatarGatchaResDto;
 import com.galaxy.gunpang.avatar.model.dto.AvatarNamingReqDto;
 import com.galaxy.gunpang.avatar.model.dto.AvatarResDto;
+import com.galaxy.gunpang.avatar.model.dto.AvatarWatchResDto;
 import com.galaxy.gunpang.avatar.service.AvatarService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -66,13 +67,30 @@ public class AvatarController {
             , @ApiResponse(responseCode = "404", description = "존재하지 않는 아바타")
             , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
     })
-    @GetMapping("/current")
-    public ResponseEntity<?> current(@RequestParam("userId")Long userId){
-        log.debug("[GET] /avatar/current : current method, {}", userId);
+    @GetMapping("/current-app")
+    public ResponseEntity<?> currentApp(@RequestParam("userId")Long userId){
+        log.debug("[GET] /avatar/current-app : current method, {}", userId);
 
         AvatarResDto avatarResDto = avatarService.getCurAvatarResDto(userId);
 
         return ResponseEntity.ok().body(avatarResDto);
+    }
+
+    @Operation(summary = "(워치)현재 아바타 받아오기", description = "가장 최근에 키운 아바타를 받아옵니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = AvatarResDto.class)))
+            , @ApiResponse(responseCode = "400", description = "잘못된 필드, 값 요청")
+            , @ApiResponse(responseCode = "401", description = "로그인되지 않은 사용자")
+            , @ApiResponse(responseCode = "404", description = "존재하지 않는 아바타")
+            , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
+    })
+    @GetMapping("/current-watch")
+    public ResponseEntity<?> currentWatch(@RequestParam("userId")Long userId){
+        log.debug("[GET] /avatar/current-watch : current method, {}", userId);
+
+        AvatarWatchResDto avatarWatchResDto = avatarService.getCurAvatarWatchResDto(userId);
+
+        return ResponseEntity.ok().body(avatarWatchResDto);
     }
 
     @Operation(summary = "아바타 상세 조회", description = "아바타를 조회합니다.")
