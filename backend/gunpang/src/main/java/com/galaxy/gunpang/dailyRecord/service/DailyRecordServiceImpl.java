@@ -127,7 +127,6 @@ public class DailyRecordServiceImpl implements DailyRecordService {
                 duration.toMinutesPart(),
                 duration.toSecondsPart());
 
-
         checkDailyRecordResDto = CheckDailyRecordResDto.builder()
                 .breakfastFoodType(dailyRecord.getBreakfastFoodType())
                 .lunchFoodType(dailyRecord.getLunchFoodType())
@@ -161,18 +160,29 @@ public class DailyRecordServiceImpl implements DailyRecordService {
 
         for (int i = 0; i < exercises.size(); i++) {
             //운동 시간 계산
-            long exerciseAccTime = Duration.between(exercises.get(i).getStartedTime(), exercises.get(i).getFinishedTime()).toSeconds();
+            Duration duration = Duration.between(exercises.get(i).getStartedTime(), exercises.get(i).getFinishedTime());
+            String exerciseAccTime = String.format("%02d:%02d:%02d",
+                    duration.toHours(),
+                    duration.toMinutesPart(),
+                    duration.toSecondsPart());
+
             exerciseOnDates.add(CheckDailyRecordOnCalendarResDto.ExerciseOnDate.builder()
                     .exerciseAccTime(exerciseAccTime)
                     .exerciseIntensity(exercises.get(i).getExerciseIntensity())
                     .build());
         }
+        Duration duration = Duration.ofSeconds(dailyRecord.getExerciseAccTime());
+        String formattedTime = String.format("%02d:%02d:%02d",
+                duration.toHours(),
+                duration.toMinutesPart(),
+                duration.toSecondsPart());
+
         logger.debug(dailyRecord.toString());
         CheckDailyRecordOnCalendarResDto checkDailyRecordOnCalendarResDto = CheckDailyRecordOnCalendarResDto.builder()
                 .breakfastFoodType(dailyRecord.getBreakfastFoodType())
                 .lunchFoodType(dailyRecord.getLunchFoodType())
                 .dinnerFoodType(dailyRecord.getDinnerFoodType())
-                .exerciseTime(dailyRecord.getExerciseAccTime())
+                .exerciseTime(formattedTime)
                 .sleepAt(dailyRecord.getSleepAt().toString())
                 .awakeAt(dailyRecord.getAwakeAt().toString())
                 .exercisesOnDate(exerciseOnDates)
