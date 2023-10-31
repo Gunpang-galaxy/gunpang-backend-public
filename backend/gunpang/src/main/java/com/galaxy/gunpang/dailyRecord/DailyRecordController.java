@@ -78,12 +78,10 @@ public class DailyRecordController {
             @ApiResponse(responseCode = "404", description = "식사 기록 실패"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @PostMapping(value = "/records/food", consumes = "application/json;charset=UTF-8")
-    //@RequestHeader("Authorization") String token
-    public ResponseEntity<?> recordFood(@RequestBody FoodRecordReqDto foodRecordReqDto) throws Exception {
-        //토큰에서 빼낸 userId도 넣어야 함
-
-        dailyRecordService.recordFood(foodRecordReqDto.getUserId(), foodRecordReqDto.getFoodType(),foodRecordReqDto.getTimeToEat());
+    @PostMapping(value = "/records/food")
+    public ResponseEntity<?> recordFood(@RequestHeader("Authorization") String token, @RequestBody FoodRecordReqDto foodRecordReqDto) throws Exception {
+        Long userId = userService.getIdByToken(token).getId();
+        dailyRecordService.recordFood(userId, foodRecordReqDto.getFoodType(),foodRecordReqDto.getTimeToEat());
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
