@@ -69,6 +69,19 @@ public class AvatarServiceImpl implements AvatarService{
     }
 
     @Override
+    public AvatarWatchResDto getCurAvatarWatchResDto(Long userId) {
+        Long curAvatarId = avatarRepository.getCurIdByUserId(userId).orElseThrow(
+                () -> new AvatarNotFoundException(userId)
+        );
+        Avatar avatar = avatarRepository.findById(curAvatarId).get();
+        return AvatarWatchResDto.builder().avatarTypeId(avatar.getAvatarType().getId())
+                .healthPoint(avatar.getHealthPoint()/10f)
+                .status(avatar.getStatus())
+                .stage(avatar.getStage())
+                .build();
+    }
+
+    @Override
     public AvatarResDto getAvatarResDto(Long avatarId, Long userId) {
         Avatar avatar = avatarRepository.findByIdAndUser_Id(avatarId, userId).orElseThrow(
                 () -> new AvatarNotFoundException(userId)
