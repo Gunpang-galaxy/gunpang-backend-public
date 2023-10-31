@@ -16,7 +16,7 @@ public class CheckDailyRecordOnCalendarResDto {
     private FoodType breakfastFoodType;
     private FoodType lunchFoodType;
     private FoodType dinnerFoodType;
-    private Long exerciseTime;
+    private String exerciseTime;
     private String sleepAt;
     private String awakeAt;
     private List<ExerciseOnDate> exercisesOnDate;
@@ -28,7 +28,7 @@ public class CheckDailyRecordOnCalendarResDto {
     @Builder
     public static class ExerciseOnDate{
         @NonNull
-        private Long exerciseAccTime;
+        private String exerciseAccTime;
 
         @NonNull
         private ExerciseIntensity exerciseIntensity;
