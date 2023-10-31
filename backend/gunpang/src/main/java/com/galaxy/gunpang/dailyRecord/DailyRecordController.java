@@ -95,9 +95,9 @@ public class DailyRecordController {
             @ApiResponse(responseCode = "404", description = "하루 기록이 존재하지 않음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @GetMapping(value = "/records", consumes = "application/json;charset=UTF-8")
-    public ResponseEntity<?> checkDailyRecord(@RequestParam String date, @RequestBody Map<String, Long> data){
-        Long userId = data.get("userId");
+    @GetMapping(value = "/records")
+    public ResponseEntity<?> checkDailyRecord(@RequestHeader("Authorization") String token, @RequestParam String date ){
+        Long userId = userService.getIdByToken(token).getId();
         CheckDailyRecordResDto checkDailyRecordResDto = dailyRecordService.checkDailyRecord(userId, date);
 
         return new ResponseEntity<>(checkDailyRecordResDto, HttpStatus.OK);

@@ -14,7 +14,7 @@ public class CheckDailyRecordResDto {
     private FoodType breakfastFoodType;
     private FoodType lunchFoodType;
     private FoodType dinnerFoodType;
-    private Long exerciseTime;
-    private LocalDateTime sleepAt;
-    private LocalDateTime awakeAt;
+    private String exerciseTime;
+    private String sleepAt;
+    private String awakeAt;
 }
