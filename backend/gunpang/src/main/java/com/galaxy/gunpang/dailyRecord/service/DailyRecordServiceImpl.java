@@ -27,7 +27,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-public class DailyRecordServiceImpl implements DailyRecordService{
+public class DailyRecordServiceImpl implements DailyRecordService {
 
     private final DailyRecordRepository dailyRecordRepository;
     private final ExerciseRepository exerciseRepository;
@@ -37,13 +37,13 @@ public class DailyRecordServiceImpl implements DailyRecordService{
     @Override
     public void createRecord(Long userId) {
         //LocalDate today = LocalDate.now();
-        try{
+        try {
             DailyRecord dailyRecord = new DailyRecord();
             dailyRecord.setUserId(userId);
             logger.debug(dailyRecord.toString());
             dailyRecordRepository.save(dailyRecord);
 
-        } catch(Exception e){
+        } catch (Exception e) {
             e.getMessage();
         }
 
@@ -64,9 +64,9 @@ public class DailyRecordServiceImpl implements DailyRecordService{
             logger.debug(dailyRecord.toString());
             dailyRecordRepository.save(dailyRecord);
 
-        }catch (DailyRecordNotFoundException e){
-                throw new DailyRecordNotFoundException(today);
-        } catch(Exception e){
+        } catch (DailyRecordNotFoundException e) {
+            throw new DailyRecordNotFoundException(today);
+        } catch (Exception e) {
             e.getMessage();
         }
 
@@ -78,7 +78,7 @@ public class DailyRecordServiceImpl implements DailyRecordService{
         //언제 밥먹었은지보고 하루 기록에 기록 + 저장
         //로그인한 사용자 것의 기록인지 추가해야함
         LocalDate today = LocalDate.now();
-        try{
+        try {
             DailyRecord dailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(userId, today).orElseThrow(
                     () -> new DailyRecordNotFoundException(today)
             );
@@ -87,22 +87,22 @@ public class DailyRecordServiceImpl implements DailyRecordService{
             //이거다
             logger.debug(String.valueOf(timeToEat.getValue().equals("아침")));
 
-            if (timeToEat.getValue().equals("아침")){
+            if (timeToEat.getValue().equals("아침")) {
                 dailyRecord.setBreakfastFoodType(foodType);
             }
-            if (timeToEat.getValue().equals("점심")){
+            if (timeToEat.getValue().equals("점심")) {
                 dailyRecord.setLunchFoodType(foodType);
             }
-            if (timeToEat.getValue().equals("저녁")){
+            if (timeToEat.getValue().equals("저녁")) {
                 dailyRecord.setDinnerFoodType(foodType);
             }
 
             logger.debug(dailyRecord.toString());
 
             dailyRecordRepository.save(dailyRecord);
-        }catch (DailyRecordNotFoundException e){
+        } catch (DailyRecordNotFoundException e) {
             throw new DailyRecordNotFoundException(today);
-        } catch(Exception e){
+        } catch (Exception e) {
             e.getMessage();
         }
 
@@ -116,7 +116,7 @@ public class DailyRecordServiceImpl implements DailyRecordService{
         LocalDate localDate = LocalDate.parse(date);
         CheckDailyRecordResDto checkDailyRecordResDto = null;
         DailyRecord dailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(userId, localDate).orElseThrow(
-                    () -> new DailyRecordNotFoundException(localDate)
+                () -> new DailyRecordNotFoundException(localDate)
         );
         logger.debug(dailyRecord.toString());
         checkDailyRecordResDto = CheckDailyRecordResDto.builder()
@@ -130,7 +130,8 @@ public class DailyRecordServiceImpl implements DailyRecordService{
 
         return checkDailyRecordResDto;
     }
-    public CheckDailyRecordOnCalendarResDto checkDailyRecordOnCalendar(Long userId, String date){
+
+    public CheckDailyRecordOnCalendarResDto checkDailyRecordOnCalendar(Long userId, String date) {
 
         //해당 날짜에 맞는 기록 가져와보기
         //없으면 오류, 있으면 그 기록에서 정보 담아서 전달
@@ -149,9 +150,9 @@ public class DailyRecordServiceImpl implements DailyRecordService{
 
         //운돌들 가져온 거에서 운동 시간 계산해주고 리스트로 넣어야될듯
 
-        for (int i=0;i< exercises.size();i++) {
+        for (int i = 0; i < exercises.size(); i++) {
             //운동 시간 계산
-            long exerciseAccTime = Duration.between(exercises.get(i).getStartedTime(),exercises.get(i).getFinishedTime()).toMinutes();
+            long exerciseAccTime = Duration.between(exercises.get(i).getStartedTime(), exercises.get(i).getFinishedTime()).toMinutes();
             exerciseOnDates.add(CheckDailyRecordOnCalendarResDto.ExerciseOnDate.builder()
                     .exerciseAccTime(exerciseAccTime)
                     .exerciseIntensity(exercises.get(i).getExerciseIntensity())
@@ -177,7 +178,7 @@ public class DailyRecordServiceImpl implements DailyRecordService{
         Long userId = sleepRecordApiReqDto.getUserId();
         LocalDate localDate = sleepRecordApiReqDto.getRecordDate();
 
-        if (!localDate.equals(LocalDate.now())){
+        if (!localDate.equals(LocalDate.now())) {
             throw new RecordDateNotTodayException();
         }
         DailyRecord dailyRecord;
@@ -185,7 +186,7 @@ public class DailyRecordServiceImpl implements DailyRecordService{
             dailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(userId, localDate).orElseThrow(
                     () -> new DailyRecordNotFoundException(localDate)
             );
-         }catch (DailyRecordNotFoundException e){
+        } catch (DailyRecordNotFoundException e) {
             dailyRecord = new DailyRecord();
             dailyRecord.setUserId(userId);
             logger.debug(dailyRecord.toString());
