@@ -33,9 +33,9 @@ public class DailyRecordController {
             @ApiResponse(responseCode = "404", description = "하루 기록 생성 실패"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @PostMapping(value = "/records/createTodayRecord", consumes = "application/json;charset=UTF-8")
-    public ResponseEntity<?> createRecord(@RequestBody Map<String, Long> data) throws Exception {
-        Long userId = data.get("userId");
+    @PostMapping(value = "/records/createTodayRecord")
+    public ResponseEntity<?> createRecord(@RequestHeader("Authorization") String token) throws Exception {
+        Long userId = userService.getIdByToken(token).getId();
         dailyRecordService.createRecord(userId);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
