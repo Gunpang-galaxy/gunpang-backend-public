@@ -12,8 +12,6 @@ import lombok.*;
 public class FoodRecordReqDto {
 
     @NonNull
-    private final Long userId;
-    @NonNull
     private final FoodType foodType;
     @NonNull
     private final TimeToEat timeToEat;

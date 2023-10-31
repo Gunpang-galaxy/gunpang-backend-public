@@ -64,9 +64,10 @@ public class DailyRecordController {
             @ApiResponse(responseCode = "404", description = "삼성 헬스 수면 기록 실패"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @PostMapping(value = "/records/sleep/samsung", consumes = "application/json;charset=UTF-8")
-    public ResponseEntity<?> recordSleepWithHealthConnectApi(@RequestBody SleepRecordApiReqDto sleepRecordApiReqDto) throws Exception {
-        dailyRecordService.recordSleepWithHealthConnectApi(sleepRecordApiReqDto);
+    @PostMapping(value = "/records/sleep/samsung")
+    public ResponseEntity<?> recordSleepWithHealthConnectApi(@RequestHeader("Authorization") String token, @RequestBody SleepRecordApiReqDto sleepRecordApiReqDto) throws Exception {
+        Long userId = userService.getIdByToken(token).getId();
+        dailyRecordService.recordSleepWithHealthConnectApi(userId,sleepRecordApiReqDto);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

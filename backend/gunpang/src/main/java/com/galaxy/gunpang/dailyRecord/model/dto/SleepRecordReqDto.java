@@ -11,8 +11,6 @@ import java.time.LocalDateTime;
 public class SleepRecordReqDto {
 
     @NonNull
-    private Long userId;
-    @NonNull
     private LocalDateTime sleepAt;
     @NonNull
     private LocalDateTime awakeAt;
