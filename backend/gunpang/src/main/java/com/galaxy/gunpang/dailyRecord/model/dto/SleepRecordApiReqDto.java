@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SleepRecordApiReqDto {
-    private Long userId;
+
     private LocalDateTime sleepAt;
     private LocalDateTime awakeAt;
     private LocalDate recordDate;

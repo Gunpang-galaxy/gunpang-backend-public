@@ -193,8 +193,7 @@ public class DailyRecordServiceImpl implements DailyRecordService {
     }
 
     @Override
-    public void recordSleepWithHealthConnectApi(SleepRecordApiReqDto sleepRecordApiReqDto) {
-        Long userId = sleepRecordApiReqDto.getUserId();
+    public void recordSleepWithHealthConnectApi(long userId, SleepRecordApiReqDto sleepRecordApiReqDto) {
         LocalDate localDate = sleepRecordApiReqDto.getRecordDate();
 
         if (!localDate.equals(LocalDate.now())) {

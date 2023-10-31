@@ -20,5 +20,5 @@ public interface DailyRecordService {
 
     CheckDailyRecordOnCalendarResDto checkDailyRecordOnCalendar(Long userId, String date);
 
-    void recordSleepWithHealthConnectApi(SleepRecordApiReqDto sleepRecordApiReqDto);
+    void recordSleepWithHealthConnectApi(long userId, SleepRecordApiReqDto sleepRecordApiReqDto);
 }
