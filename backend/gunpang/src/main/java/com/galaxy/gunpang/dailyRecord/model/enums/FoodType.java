@@ -6,8 +6,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum FoodType {
-    HEALTH("건강"), MEDIUM("적당"), UNHEALTH("불량");
+    HEALTHY("건강"), NORMAL("적당"), BAD("불량"),NOT_RECORD("기록 없음");
 
     private final String value;
 
 }
+
