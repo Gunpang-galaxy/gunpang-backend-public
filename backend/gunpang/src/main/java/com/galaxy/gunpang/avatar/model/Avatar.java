@@ -50,6 +50,7 @@ public class Avatar extends BaseEntity {
     public void setDeathCause(DeathCause deathCause){this.deathCause = deathCause;}
     public void setStatus(Status status){this.status = status;}
     public void setFinishedDate(LocalDate finishedDate) {this.finishedDate = finishedDate;}
+    public void setStage(Stage stage){this.stage = stage;}
 
     @Builder
     public Avatar(Long id, User user, AvatarType avatarType, String name, Stage stage, Status status, byte healthPoint, LocalDate startedDate, LocalDate finishedDate, DeathCause deathCause, Goal goal){

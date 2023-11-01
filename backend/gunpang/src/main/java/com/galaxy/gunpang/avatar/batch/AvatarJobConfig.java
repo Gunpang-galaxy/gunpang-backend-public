@@ -43,18 +43,36 @@ public class AvatarJobConfig {
     }
 
     @Bean
-    public Step checkDailyRecordStep(AvatarMultiProcessor avatarMultiProcessor, @Qualifier("avatarReader") RepositoryItemReader<Avatar> avatarReader){
+    public Job levelUpJob(Step levelUpStep){
+        return jobBuilderFactory.get("levelUpJob")
+                .flow(levelUpStep)
+                .end()
+                .build();
+    }
+
+    @Bean
+    public Step checkDailyRecordStep(AvatarMultiProcessor avatarMultiProcessor, @Qualifier("avatarDamageReader") RepositoryItemReader<Avatar> avatarDamageReader){
         return stepBuilderFactory.get("checkDailyRecordStep")
                 .<Avatar, Avatar>chunk(CHUNK_SIZE)
-                .reader(avatarReader)
+                .reader(avatarDamageReader)
                 .processor(avatarMultiProcessor)
                 .writer(avatars -> {})
                 .build();
     }
 
     @Bean
+    public Step levelUpStep(AvatarLevelProcessor levelProcessor, @Qualifier("avatarLevelUpReader") RepositoryItemReader<Avatar> avatarLevelUpReader){
+        return stepBuilderFactory.get("levelUpStep")
+                .<Avatar, Avatar>chunk(CHUNK_SIZE)
+                .reader(avatarLevelUpReader)
+                .processor(levelProcessor)
+                .writer(avatars -> {})
+                .build();
+    }
+
+    @Bean
     @StepScope
-    public RepositoryItemReader<Avatar> avatarReader(AvatarRepository avatarRepository){
+    public RepositoryItemReader<Avatar> avatarDamageReader(AvatarRepository avatarRepository){
         return new RepositoryItemReaderBuilder()
                 .repository(avatarRepository)
                 .methodName("findByStatus")
@@ -62,7 +80,20 @@ public class AvatarJobConfig {
                 .maxItemCount(CHUNK_SIZE)
                 .arguments(Arrays.asList(Status.ALIVE))
                 .sorts(Collections.singletonMap("id",Sort.Direction.ASC))
-                .name("avatarReader")
+                .name("avatarDamageReader")
+                .build();
+    }
+
+    @Bean
+    @StepScope
+    public RepositoryItemReader<Avatar> avatarLevelUpReader(AvatarRepository avatarRepository){
+        return new RepositoryItemReaderBuilder()
+                .repository(avatarRepository)
+                .methodName("getLevelUpAvatars")
+                .pageSize(CHUNK_SIZE)
+                .maxItemCount(CHUNK_SIZE)
+                .sorts(Collections.singletonMap("id", Sort.Direction.ASC))
+                .name("avatarLevelUpReader")
                 .build();
     }
 }

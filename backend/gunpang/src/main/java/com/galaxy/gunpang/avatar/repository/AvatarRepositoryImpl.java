@@ -5,9 +5,14 @@ import com.galaxy.gunpang.avatar.model.QAvatar;
 import com.galaxy.gunpang.avatar.model.enums.Status;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.galaxy.gunpang.avatar.model.QAvatar.avatar;
 
@@ -36,6 +41,22 @@ public class AvatarRepositoryImpl implements AvatarRepositoryCustom{
                 .where(avatar.user.id.eq(userId))
                 .orderBy(avatar.id.desc())
                 .fetchFirst());
+    }
+
+    @Override
+    public Page<Avatar> getLevelUpAvatars(Pageable pageable) {
+        LocalDate[] dates = new LocalDate[4];
+        for(int i = 0; i < dates.length;) dates[i] = LocalDate.now().minusDays(7 * (++i));
+        List<Avatar> avatars = queryFactory.selectFrom(avatar)
+                .where(avatar.status.eq(Status.ALIVE)
+                        .and(avatar.startedDate.eq(dates[0])
+                                .or(avatar.startedDate.eq(dates[1]))
+                                .or(avatar.startedDate.eq(dates[2]))
+                                .or(avatar.startedDate.eq(dates[3]))))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+        return new PageImpl<>(avatars, pageable, avatars.size());
     }
 
 //    @Override

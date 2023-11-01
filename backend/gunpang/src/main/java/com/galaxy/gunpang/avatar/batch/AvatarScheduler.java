@@ -26,11 +26,10 @@ import java.util.Map;
 public class AvatarScheduler {
     private final JobLauncher jobLauncher;
     private final Job damageJob;
-//    private final AvatarJobConfig avatarJobConfig;
-//    private final AvatarRepository avatarRepository;
+    private final Job levelUpJob;
 
     @Async
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 */5 * * * *")
     public void run(){
         Map<String, JobParameter> confMap = new HashMap<>();
         confMap.put("time", new JobParameter(System.currentTimeMillis()));
@@ -39,6 +38,7 @@ public class AvatarScheduler {
 
         try{
             jobLauncher.run(damageJob, jobParameters);
+            jobLauncher.run(levelUpJob, jobParameters);
         } catch (JobInstanceAlreadyCompleteException e) {
             throw new RuntimeException(e);
         } catch (JobExecutionAlreadyRunningException e) {
