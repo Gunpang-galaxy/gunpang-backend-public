@@ -30,6 +30,7 @@ import java.util.Map;
 public class DevelopController {
     private final JobLauncher jobLauncher;
     private final Job damageJob;
+    private final Job levelUpJob;
     @Operation(summary = "아바타 체력 변화", description = "ALIVE 상태의 전체 아바타에 로직 실행")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공")
@@ -37,7 +38,7 @@ public class DevelopController {
     })
     @PostMapping("/avatar/hp")
     public ResponseEntity<?> hp(){
-        log.debug("[POST] hp method {}");
+        log.debug("[PUT] hp method {}");
 
         Map<String, JobParameter> confMap = new HashMap<>();
         confMap.put("time", new JobParameter(System.currentTimeMillis()));
@@ -46,6 +47,35 @@ public class DevelopController {
 
         try{
             jobLauncher.run(damageJob, jobParameters);
+        } catch (JobInstanceAlreadyCompleteException e) {
+            throw new RuntimeException(e);
+        } catch (JobExecutionAlreadyRunningException e) {
+            throw new RuntimeException(e);
+        } catch (JobParametersInvalidException e) {
+            throw new RuntimeException(e);
+        } catch (JobRestartException e) {
+            throw new RuntimeException(e);
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "아바타 레벨업 & 졸업", description = "살아있는 일주일이 지난 아바타에 대해 로직 실행")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "요청 성공")
+            , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
+    })
+    @PostMapping("/avatar/level-up")
+    public ResponseEntity<?> levelUp(){
+        log.debug("[PUT] levelUp method {}");
+
+        Map<String, JobParameter> confMap = new HashMap<>();
+        confMap.put("time", new JobParameter(System.currentTimeMillis()));
+
+        JobParameters jobParameters = new JobParameters(confMap);
+
+        try{
+            jobLauncher.run(levelUpJob, jobParameters);
         } catch (JobInstanceAlreadyCompleteException e) {
             throw new RuntimeException(e);
         } catch (JobExecutionAlreadyRunningException e) {
