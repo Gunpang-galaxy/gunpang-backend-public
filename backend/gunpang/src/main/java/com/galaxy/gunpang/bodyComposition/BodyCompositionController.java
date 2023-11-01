@@ -2,6 +2,7 @@ package com.galaxy.gunpang.bodyComposition;
 
 import com.galaxy.gunpang.bodyComposition.model.BodyComposition;
 import com.galaxy.gunpang.bodyComposition.model.dto.BodyCompositionApiReqDto;
+import com.galaxy.gunpang.bodyComposition.model.dto.BodyCompositionResDto;
 import com.galaxy.gunpang.bodyComposition.service.BodyCompositionService;
 import com.galaxy.gunpang.dailyRecord.DailyRecordController;
 import com.galaxy.gunpang.user.service.UserService;
@@ -40,5 +41,15 @@ public class BodyCompositionController {
         bodyCompositionService.setBodyCompositionsWithHealthApi(userId,bodyCompositionApiReqDto.getWeight(),bodyCompositionApiReqDto.getMuscleMass(),bodyCompositionApiReqDto.getFatMass(),bodyCompositionApiReqDto.getBodyWaterMass());
 
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<?> getBodyCompositions(@RequestHeader("Authorization") String token){
+        logger.debug("controller");
+
+        Long userId = userService.getIdByToken(token).getId();
+        BodyCompositionResDto bodyCompositionResDto = bodyCompositionService.getBodyCompositions(userId);
+        return new ResponseEntity<>(bodyCompositionResDto, HttpStatus.OK);
+
     }
 }
