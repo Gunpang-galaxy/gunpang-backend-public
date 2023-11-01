@@ -25,15 +25,15 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
-    public boolean checkInNotification(String token){
+    public boolean checkInNotification(String token) {
         logger.debug("checkInNotification");
-        if(notificationRepository.findByToken(token) == null ){
+        if (notificationRepository.findByToken(token) == null) {
             return false;
         }
         return true;
     }
 
-    public void  sendNotification(String targetToken, String title, String body) throws IOException{
+    public void sendNotification(String targetToken, String title, String body) throws IOException {
 
         logger.debug("sendNotification");
 
@@ -80,7 +80,7 @@ public class NotificationService {
         return objectMapper.writeValueAsString(fcmMessage);
     }
 
-    private String getAccessToken() throws IOException{
+    private String getAccessToken() throws IOException {
         logger.debug("getAccessToken");
 
         String firebaseConfigPath = "firebase/gunpangServiceKey.json";
@@ -91,5 +91,15 @@ public class NotificationService {
         //accessToken 생성
         googleCredentials.refreshIfExpired();
         return googleCredentials.getAccessToken().getTokenValue();
+    }
+
+    public void recordNotification(String token, long userId) {
+        logger.debug("recordNotification");
+
+        //db에 없으면
+        if (notificationRepository.findByToken(token) == null) {
+            Notification notification = Notification.builder().userId(userId).token(token).build();
+            notificationRepository.save(notification);
+        }
     }
 }
