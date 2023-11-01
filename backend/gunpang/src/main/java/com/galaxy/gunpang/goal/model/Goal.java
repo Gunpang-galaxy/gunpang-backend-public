@@ -14,6 +14,7 @@ import java.time.LocalTime;
 @RequiredArgsConstructor
 public class Goal extends BaseEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
