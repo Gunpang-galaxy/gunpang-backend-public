@@ -96,18 +96,18 @@ public class AvatarProcessor {
         int mealCnt = 0;
         int unHealthCnt = 0;
 
-        if(dailyRecord.get().getBreakfastFoodType() != null){
+        if(dailyRecord.get().getBreakfastFoodType() == FoodType.NOT_RECORD){
             ++mealCnt;
-            if(dailyRecord.get().getBreakfastFoodType() == FoodType.UNHEALTH)++unHealthCnt;
-        }else ++unHealthCnt;
-        if(dailyRecord.get().getLunchFoodType() != null){
+            ++unHealthCnt;
+        }else if(dailyRecord.get().getBreakfastFoodType() == FoodType.BAD) ++unHealthCnt;
+        if(dailyRecord.get().getLunchFoodType() == FoodType.NOT_RECORD){
             ++mealCnt;
-            if(dailyRecord.get().getLunchFoodType() == FoodType.UNHEALTH)++unHealthCnt;
-        }else ++unHealthCnt;
-        if(dailyRecord.get().getDinnerFoodType() != null){
+            ++unHealthCnt;
+        }else if(dailyRecord.get().getLunchFoodType() == FoodType.BAD) ++unHealthCnt;
+        if(dailyRecord.get().getDinnerFoodType() == FoodType.NOT_RECORD){
             ++mealCnt;
-            if(dailyRecord.get().getDinnerFoodType() == FoodType.UNHEALTH)++unHealthCnt;
-        }else ++unHealthCnt;
+            ++unHealthCnt;
+        }else if(dailyRecord.get().getDinnerFoodType() == FoodType.BAD) ++unHealthCnt;
 
         if(mealCnt < 3 || unHealthCnt > 1){
             byte hp = avatar.getHealthPoint();
