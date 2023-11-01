@@ -2,6 +2,7 @@ package com.galaxy.gunpang.dailyRecord.service;
 
 import com.galaxy.gunpang.dailyRecord.exception.DailyRecordNotFoundException;
 import com.galaxy.gunpang.dailyRecord.exception.RecordDateNotTodayException;
+import com.galaxy.gunpang.dailyRecord.exception.FoodRecordTimeBadRequestException;
 import com.galaxy.gunpang.dailyRecord.model.DailyRecord;
 import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordForWatchResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordOnCalendarResDto;
@@ -71,38 +72,35 @@ public class DailyRecordServiceImpl implements DailyRecordService {
     }
 
     @Override
-    public void recordFood(Long userId, FoodType foodType, TimeToEat timeToEat) {
+    public void recordFood(Long userId, FoodType foodType) {
         //오늘 날짜에 맞는 하루 기록 가져오기
         //언제 밥먹었은지보고 하루 기록에 기록 + 저장
-        //로그인한 사용자 것의 기록인지 추가해야함
+
         LocalDate today = LocalDate.now();
-        try {
-            DailyRecord dailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(userId, today).orElseThrow(
-                    () -> new DailyRecordNotFoundException(today)
-            );
-            logger.debug(dailyRecord.toString());
+        LocalDateTime now = LocalDateTime.now();
+        //LocalDateTime now = LocalDateTime.of(2023, 11, 1, 23, 30);
 
-            //이거다
-            logger.debug(String.valueOf(timeToEat.getValue().equals("아침")));
+        DailyRecord dailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(userId, today).orElseThrow(
+                () -> new DailyRecordNotFoundException(today)
+        );
+        logger.debug(dailyRecord.toString());
 
-            if (timeToEat.getValue().equals("아침")) {
-                dailyRecord.setBreakfastFoodType(foodType);
-            }
-            if (timeToEat.getValue().equals("점심")) {
-                dailyRecord.setLunchFoodType(foodType);
-            }
-            if (timeToEat.getValue().equals("저녁")) {
-                dailyRecord.setDinnerFoodType(foodType);
-            }
-
-            logger.debug(dailyRecord.toString());
-
-            dailyRecordRepository.save(dailyRecord);
-        } catch (DailyRecordNotFoundException e) {
-            throw new DailyRecordNotFoundException(today);
-        } catch (Exception e) {
-            e.getMessage();
+        if (5 <= now.getHour() && now.getHour() <= 10) {
+            //이미 기록이 있을 시에는 기록 덮어쓰기
+            dailyRecord.setBreakfastFoodType(foodType);
         }
+        if (11 <= now.getHour() && now.getHour() <= 16) {
+            dailyRecord.setLunchFoodType(foodType);
+        }
+        if (17 <= now.getHour() && now.getHour() <= 21) {
+            dailyRecord.setDinnerFoodType(foodType);
+        }
+        if (22 <= now.getHour() || now.getHour() <= 4) {
+            throw new FoodRecordTimeBadRequestException(now.getHour());
+        }
+
+        logger.debug(dailyRecord.toString());
+        dailyRecordRepository.save(dailyRecord);
 
     }
 

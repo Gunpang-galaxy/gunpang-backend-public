@@ -1,6 +1,7 @@
 package com.galaxy.gunpang.dailyRecord;
 
 import com.galaxy.gunpang.dailyRecord.model.dto.*;
+import com.galaxy.gunpang.dailyRecord.model.enums.FoodType;
 import com.galaxy.gunpang.dailyRecord.service.DailyRecordService;
 import com.galaxy.gunpang.exercise.service.ExerciseService;
 import com.galaxy.gunpang.user.service.UserService;
@@ -12,9 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 
 @RequiredArgsConstructor
@@ -80,9 +78,9 @@ public class DailyRecordController {
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping(value = "/records/food")
-    public ResponseEntity<?> recordFood(@RequestHeader("Authorization") String token, @RequestBody FoodRecordReqDto foodRecordReqDto) throws Exception {
+    public ResponseEntity<?> recordFood(@RequestHeader("Authorization") String token, @RequestBody FoodType foodType) throws Exception {
         Long userId = userService.getIdByToken(token).getId();
-        dailyRecordService.recordFood(userId, foodRecordReqDto.getFoodType(),foodRecordReqDto.getTimeToEat());
+        dailyRecordService.recordFood(userId, foodType);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

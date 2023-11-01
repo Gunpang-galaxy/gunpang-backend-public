@@ -15,7 +15,7 @@ public interface DailyRecordService {
     void createRecord(Long userId);
     public void recordSleep(Long userId, LocalDateTime sleepAt, LocalDateTime awakeAt);
 
-    void recordFood(Long userId, FoodType foodType, TimeToEat timeToEat);
+    void recordFood(Long userId, FoodType foodType);
 
     CheckDailyRecordResDto checkDailyRecord(Long userId, String date);
 
