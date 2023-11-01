@@ -1,8 +1,12 @@
 package com.galaxy.gunpang.avatar.repository;
 
+import com.galaxy.gunpang.avatar.model.Avatar;
+import com.galaxy.gunpang.avatar.model.QAvatar;
+import com.galaxy.gunpang.avatar.model.enums.Status;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.galaxy.gunpang.avatar.model.QAvatar.avatar;
@@ -33,4 +37,11 @@ public class AvatarRepositoryImpl implements AvatarRepositoryCustom{
                 .orderBy(avatar.id.desc())
                 .fetchFirst());
     }
+
+//    @Override
+//    public List<Avatar> findAllAliveAvatar() {
+//        return queryFactory.selectFrom(avatar)
+//                .where(avatar.status.eq(Status.ALIVE)
+//                ).fetch();
+//    }
 }
