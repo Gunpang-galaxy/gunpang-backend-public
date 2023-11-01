@@ -2,11 +2,9 @@ package com.galaxy.gunpang.notification.model;
 
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Table;
+import javax.persistence.*;
 
-import com.galaxy.gunpang.notification.model.dto.FcmMessage.Message;
+@Entity
 @Getter
 @AllArgsConstructor
 @Builder
@@ -14,6 +12,7 @@ import com.galaxy.gunpang.notification.model.dto.FcmMessage.Message;
 @Table(schema = "NOTIFICATION")
 public class Notification {
 
+    @Id
     @GeneratedValue
     private long id;
 
