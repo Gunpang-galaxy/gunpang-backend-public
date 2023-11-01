@@ -38,14 +38,18 @@ public class Avatar extends BaseEntity {
     @Column(nullable = false)
     private LocalDate startedDate;
     private LocalDate finishedDate;
-    @OneToOne(mappedBy = "avatar", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToOne(mappedBy = "avatar", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     private DeathCause deathCause;
-    @OneToOne(mappedBy = "avatar", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToOne(mappedBy = "avatar", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     private Goal goal;
 
     public void setName(String name){
         this.name = name;
     }
+    public void setHealthPoint(byte healthPoint){this.healthPoint = healthPoint;}
+    public void setDeathCause(DeathCause deathCause){this.deathCause = deathCause;}
+    public void setStatus(Status status){this.status = status;}
+    public void setFinishedDate(LocalDate finishedDate) {this.finishedDate = finishedDate;}
 
     @Builder
     public Avatar(Long id, User user, AvatarType avatarType, String name, Stage stage, Status status, byte healthPoint, LocalDate startedDate, LocalDate finishedDate, DeathCause deathCause, Goal goal){
