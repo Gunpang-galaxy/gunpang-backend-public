@@ -102,6 +102,21 @@ public class DailyRecordController {
         return new ResponseEntity<>(checkDailyRecordResDto, HttpStatus.OK);
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "하루 기록 가져오기 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "403", description = "로그인 필요"),
+            @ApiResponse(responseCode = "404", description = "하루 기록이 존재하지 않음"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    @GetMapping(value = "/records/watch")
+    public ResponseEntity<?> checkDailyRecordForWatch(@RequestHeader("Authorization") String token, @RequestParam String date ){
+        Long userId = userService.getIdByToken(token).getId();
+        CheckDailyRecordForWatchResDto checkDailyRecordForWatchResDto = dailyRecordService.checkDailyRecordForWatch(userId, date);
+
+        return new ResponseEntity<>(checkDailyRecordForWatchResDto, HttpStatus.OK);
+    }
+
     @GetMapping(value = "/records/calendar")
     public ResponseEntity<?> checkDailyRecordOnCalendar(@RequestHeader("Authorization") String token, @RequestParam String date){
 

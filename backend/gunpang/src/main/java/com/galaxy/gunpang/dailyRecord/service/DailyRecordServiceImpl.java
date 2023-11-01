@@ -1,16 +1,15 @@
 package com.galaxy.gunpang.dailyRecord.service;
 
-import com.galaxy.gunpang.common.exception.BadRequestException;
 import com.galaxy.gunpang.dailyRecord.exception.DailyRecordNotFoundException;
 import com.galaxy.gunpang.dailyRecord.exception.RecordDateNotTodayException;
 import com.galaxy.gunpang.dailyRecord.model.DailyRecord;
+import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordForWatchResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordOnCalendarResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.SleepRecordApiReqDto;
 import com.galaxy.gunpang.dailyRecord.model.enums.FoodType;
 import com.galaxy.gunpang.dailyRecord.model.enums.TimeToEat;
 import com.galaxy.gunpang.dailyRecord.repository.DailyRecordRepository;
-import com.galaxy.gunpang.exercise.exception.ExerciseNotFoundException;
 import com.galaxy.gunpang.exercise.model.Exercise;
 import com.galaxy.gunpang.exercise.repository.ExerciseRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -217,5 +215,37 @@ public class DailyRecordServiceImpl implements DailyRecordService {
         logger.debug(dailyRecord.toString());
 
         dailyRecordRepository.save(dailyRecord);
+    }
+
+    @Override
+    public CheckDailyRecordForWatchResDto checkDailyRecordForWatch(Long userId, String date) {
+        LocalDate localDate = LocalDate.parse(date);
+        CheckDailyRecordForWatchResDto checkDailyRecordForWatchResDto = null;
+        DailyRecord dailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(userId, localDate).orElseThrow(
+                () -> new DailyRecordNotFoundException(localDate)
+        );
+        logger.debug(dailyRecord.toString());
+
+        Duration exerciseDuration = Duration.ofSeconds(dailyRecord.getExerciseAccTime());
+
+        String exerciseFormattedTime = String.format("%02d시 %02d분",
+                exerciseDuration.toHours(),
+                exerciseDuration.toMinutesPart());
+
+        Duration sleepDuration = Duration.between(dailyRecord.getSleepAt(), dailyRecord.getAwakeAt());
+
+        String sleepFormattedTime = String.format("%02d시 %02d분",
+                sleepDuration.toHours(),
+                sleepDuration.toMinutesPart());
+
+        checkDailyRecordForWatchResDto = CheckDailyRecordForWatchResDto.builder()
+                .breakfastFoodType(dailyRecord.getBreakfastFoodType())
+                .lunchFoodType(dailyRecord.getLunchFoodType())
+                .dinnerFoodType(dailyRecord.getDinnerFoodType())
+                .exerciseTime(exerciseFormattedTime)
+                .sleepTime(sleepFormattedTime)
+                .build();
+
+        return checkDailyRecordForWatchResDto;
     }
 }

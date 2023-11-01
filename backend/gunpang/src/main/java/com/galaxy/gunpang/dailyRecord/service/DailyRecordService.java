@@ -1,5 +1,6 @@
 package com.galaxy.gunpang.dailyRecord.service;
 
+import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordForWatchResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordOnCalendarResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.SleepRecordApiReqDto;
@@ -21,4 +22,6 @@ public interface DailyRecordService {
     CheckDailyRecordOnCalendarResDto checkDailyRecordOnCalendar(Long userId, String date);
 
     void recordSleepWithHealthConnectApi(long userId, SleepRecordApiReqDto sleepRecordApiReqDto);
+
+    CheckDailyRecordForWatchResDto checkDailyRecordForWatch(Long userId, String date);
 }
