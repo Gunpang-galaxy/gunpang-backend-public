@@ -52,7 +52,7 @@ public class DailyRecordController {
     @PostMapping(value = "/records/sleep")
     public ResponseEntity<?> recordSleep(@RequestHeader("Authorization") String token, @RequestBody SleepRecordReqDto sleepRecordReqDto) throws Exception {
         Long userId = userService.getIdByToken(token).getId();
-        dailyRecordService.recordSleep(userId,sleepRecordReqDto.getSleepAt(),sleepRecordReqDto.getAwakeAt());
+        dailyRecordService.recordSleep(userId, sleepRecordReqDto.getSleepAt(), sleepRecordReqDto.getAwakeAt());
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -68,7 +68,7 @@ public class DailyRecordController {
     @PostMapping(value = "/records/sleep/samsung")
     public ResponseEntity<?> recordSleepWithHealthConnectApi(@RequestHeader("Authorization") String token, @RequestBody SleepRecordApiReqDto sleepRecordApiReqDto) throws Exception {
         Long userId = userService.getIdByToken(token).getId();
-        dailyRecordService.recordSleepWithHealthConnectApi(userId,sleepRecordApiReqDto);
+        dailyRecordService.recordSleepWithHealthConnectApi(userId, sleepRecordApiReqDto);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -98,7 +98,7 @@ public class DailyRecordController {
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @GetMapping(value = "/records")
-    public ResponseEntity<?> checkDailyRecord(@RequestHeader("Authorization") String token, @RequestParam String date ){
+    public ResponseEntity<?> checkDailyRecord(@RequestHeader("Authorization") String token, @RequestParam String date) {
         Long userId = userService.getIdByToken(token).getId();
         CheckDailyRecordResDto checkDailyRecordResDto = dailyRecordService.checkDailyRecord(userId, date);
 
@@ -114,7 +114,7 @@ public class DailyRecordController {
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @GetMapping(value = "/records/watch")
-    public ResponseEntity<?> checkDailyRecordForWatch(@RequestHeader("Authorization") String token, @RequestParam String date ){
+    public ResponseEntity<?> checkDailyRecordForWatch(@RequestHeader("Authorization") String token, @RequestParam String date) {
         Long userId = userService.getIdByToken(token).getId();
         CheckDailyRecordForWatchResDto checkDailyRecordForWatchResDto = dailyRecordService.checkDailyRecordForWatch(userId, date);
 
@@ -123,7 +123,7 @@ public class DailyRecordController {
 
     @Operation(summary = "하루 기록 조회", description = "달력용")
     @GetMapping(value = "/records/calendar")
-    public ResponseEntity<?> checkDailyRecordOnCalendar(@RequestHeader("Authorization") String token, @RequestParam String date){
+    public ResponseEntity<?> checkDailyRecordOnCalendar(@RequestHeader("Authorization") String token, @RequestParam String date) {
 
         Long userId = userService.getIdByToken(token).getId();
 
