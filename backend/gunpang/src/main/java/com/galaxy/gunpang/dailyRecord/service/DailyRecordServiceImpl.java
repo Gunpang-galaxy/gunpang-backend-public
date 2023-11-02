@@ -137,9 +137,7 @@ public class DailyRecordServiceImpl implements DailyRecordService {
         LocalDateTime now = LocalDateTime.now();
         //LocalDateTime now = LocalDateTime.of(2023, 11, 1, 23, 30);
 
-        DailyRecord dailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(userId, today).orElseThrow(
-                () -> new DailyRecordNotFoundException(today)
-        );
+        DailyRecord dailyRecord = returnDailyRecordOfDate(userId, today);
         logger.debug(dailyRecord.toString());
 
         if (5 <= now.getHour() && now.getHour() <= 10) {
