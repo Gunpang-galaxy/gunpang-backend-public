@@ -21,9 +21,13 @@ public class GoalServiceImpl implements GoalService{
     private final GoalRepository goalRepository;
 
     @Override
-    public void addGoal(GoalReqDto goalReqDto) {
-        Avatar avatar = avatarRepository.findById(goalReqDto.getAvatarId()).orElseThrow(
-                ()-> new AvatarNotFoundException(goalReqDto.getAvatarId())
+    public void addGoal(Long userId, GoalReqDto goalReqDto) {
+        Long avatarId = avatarRepository.getCurIdByUserId(userId).orElseThrow(
+                () -> new AvatarNotFoundException(userId)
+        );
+
+        Avatar avatar = avatarRepository.findById(avatarId).orElseThrow(
+                ()-> new AvatarNotFoundException(avatarId)
         );
         Goal goal = Goal.builder().avatar(avatar)
                 .exerciseDay((byte)goalReqDto.getExerciseDay())

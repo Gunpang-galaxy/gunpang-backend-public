@@ -8,8 +8,6 @@ import lombok.NonNull;
 @NoArgsConstructor
 public class GoalReqDto {
     @NonNull
-    private Long avatarId;
-    @NonNull
     private int startTime;
     @NonNull
     private int startMinute;

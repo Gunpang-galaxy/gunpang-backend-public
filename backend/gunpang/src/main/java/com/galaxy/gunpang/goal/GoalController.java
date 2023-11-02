@@ -6,6 +6,7 @@ import com.galaxy.gunpang.goal.model.Goal;
 import com.galaxy.gunpang.goal.model.dto.GoalReqDto;
 import com.galaxy.gunpang.goal.model.dto.GoalResDto;
 import com.galaxy.gunpang.goal.service.GoalService;
+import com.galaxy.gunpang.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class GoalController {
     private final GoalService goalService;
+    private final UserService userService;
+
     @Operation(summary = "아바타 목표 입력", description = "아바타의 목표를 생성합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공")
@@ -32,10 +35,12 @@ public class GoalController {
             , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
     })
     @PostMapping("/sleep")
-    public ResponseEntity<?> add(@RequestBody GoalReqDto goalReqDto){
+    public ResponseEntity<?> add(@RequestHeader("Authorization") String token, @RequestBody GoalReqDto goalReqDto){
+        Long userId = userService.getIdByToken(token).getId();
+
         log.debug("[POST] add method {}", goalReqDto);
 
-        goalService.addGoal(goalReqDto);
+        goalService.addGoal(userId, goalReqDto);
 
         return ResponseEntity.ok().body(MessageResDto.msg("목표 생성 성공"));
     }

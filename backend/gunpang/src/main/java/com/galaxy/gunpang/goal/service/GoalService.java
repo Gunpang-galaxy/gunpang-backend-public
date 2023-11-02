@@ -5,6 +5,6 @@ import com.galaxy.gunpang.goal.model.dto.GoalReqDto;
 import com.galaxy.gunpang.goal.model.dto.GoalResDto;
 
 public interface GoalService {
-    public void addGoal(GoalReqDto goalReqDto);
+    public void addGoal(Long userId, GoalReqDto goalReqDto);
     public GoalResDto getGoal(AvatarIdReqDto avatarIdReqDto);
 }
