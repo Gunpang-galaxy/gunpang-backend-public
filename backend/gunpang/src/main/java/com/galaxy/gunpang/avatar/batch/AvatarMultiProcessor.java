@@ -17,8 +17,8 @@ public class AvatarMultiProcessor implements ItemProcessor<Avatar,Avatar> {
     public Avatar process(Avatar avatar) throws Exception {
         avatarProcessor.init(avatar);
 
-        avatar = avatarProcessor.checkDailyRecord(avatar);
-        if(avatar.getStatus() == Status.DEAD || !avatarProcessor.necessaryPresent()) return avatar;
+//        avatar = avatarProcessor.checkDailyRecord(avatar);
+//        if(avatar.getStatus() == Status.DEAD || !avatarProcessor.necessaryPresent()) return avatar;
         avatar = avatarProcessor.exerciseProcess(avatar);
         if(avatar.getStatus() == Status.DEAD) return avatar;
         avatar = avatarProcessor.sleepProcess(avatar);

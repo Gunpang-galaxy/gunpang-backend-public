@@ -10,14 +10,14 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @Getter
 @ToString
-public class AvatarNamingReqDto {
-    @NotNull(message = "[필수] 아바타 아이디")
-    private Long avatarId;
+public class AvatarAddReqDto {
+    @NotNull(message = "[필수] 아바타 타입")
+    private String avatarType;
     @NotBlank(message = "[필수] 아바타 이름(1-6)")
     private String name;
 
-    public AvatarNamingReqDto(Long avatarId, String name){
-        this.avatarId = avatarId;
+    public AvatarAddReqDto(String avatarType, String name){
+        this.avatarType = avatarType;
         this.name = name;
     }
 }
