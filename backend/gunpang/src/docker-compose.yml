@@ -1,9 +1,11 @@
-# local test
-version: '3.1'
-services:
-  redis:
-    image: redis:latest
-    container_name: gunpang-redis-container
-    restart: always
-    ports:
-      - 6379:6379
+## local test
+#version: '3.1'
+#services:
+#  redis:
+#    image: redis:latest
+#    container_name: gunpang-redis-container
+#    restart: always
+#    ports:
+#      - 6379:6379
+#    environment:
+#      - TZ=Asia/Seoul

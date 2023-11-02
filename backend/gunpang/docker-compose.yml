@@ -1,0 +1,22 @@
+services:
+  gunpang:
+    build: .
+    container_name: gunpang-back
+    environment:
+      PROD_DATABASE_PASSWORD: ${PROD_DATABASE_PASSWORD}
+      PROD_DATABASE_URL: ${PROD_DATABASE_URL}
+      PROD_DATABASE_USERNAME: ${PROD_DATABASE_USERNAME}
+      JWT_SECRET: ${PROD_JWT_SECRET}
+      PROD_REDIS_HOST: ${PROD_REDIS_HOST}
+      PROD_REDIS_PORT: ${PROD_REDIS_PORT}
+    ports:
+      - "${PROD_BACK_PORT}:${PROD_BACK_PORT}"
+    restart: always
+  redis:
+    image: redis:latest
+    container_name: gunpang-redis
+    restart: always
+    ports:
+      - 6379:6379
+    environment:
+      - TZ=Asia/Seoul
