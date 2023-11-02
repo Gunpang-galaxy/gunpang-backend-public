@@ -110,21 +110,12 @@ public class DailyRecordServiceImpl implements DailyRecordService {
         //오늘 날짜에 맞는 하루 기록 가져오기
         //하루 기록 수면 시각, 기상 시각 업데이트
         LocalDate today = LocalDate.now();
-        try {
-            DailyRecord dailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(userId, today).orElseThrow(
-                    () -> new DailyRecordNotFoundException(today)
-            );
-            logger.debug(dailyRecord.toString());
-            dailyRecord.setSleepAt(sleepAt);
-            dailyRecord.setAwakeAt(awakeAt);
-            logger.debug(dailyRecord.toString());
-            dailyRecordRepository.save(dailyRecord);
-
-        } catch (DailyRecordNotFoundException e) {
-            throw new DailyRecordNotFoundException(today);
-        } catch (Exception e) {
-            e.getMessage();
-        }
+        DailyRecord dailyRecord = returnDailyRecordOfDate(userId, today);
+        logger.debug(dailyRecord.toString());
+        dailyRecord.setSleepAt(sleepAt);
+        dailyRecord.setAwakeAt(awakeAt);
+        logger.debug(dailyRecord.toString());
+        dailyRecordRepository.save(dailyRecord);
 
     }
 
@@ -286,7 +277,7 @@ public class DailyRecordServiceImpl implements DailyRecordService {
 
         logger.debug("exerciseAccTime : " + exerciseAccTime);
 
-        String sleepTime = processNullOnSleepForWatch(dailyRecord.getSleepAt(),dailyRecord.getAwakeAt());
+        String sleepTime = processNullOnSleepForWatch(dailyRecord.getSleepAt(), dailyRecord.getAwakeAt());
 
         //foodType null 처리
         FoodType breakFastFoodType = processNullOnFoodType(dailyRecord.getBreakfastFoodType());
