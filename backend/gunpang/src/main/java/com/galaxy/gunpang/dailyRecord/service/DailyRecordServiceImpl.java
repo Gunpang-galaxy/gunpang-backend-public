@@ -247,17 +247,10 @@ public class DailyRecordServiceImpl implements DailyRecordService {
         if (!localDate.equals(LocalDate.now())) {
             throw new RecordDateNotTodayException();
         }
-        DailyRecord dailyRecord;
-        try {
-            dailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(userId, localDate).orElseThrow(
-                    () -> new DailyRecordNotFoundException(localDate)
-            );
-        } catch (DailyRecordNotFoundException e) {
-            dailyRecord = new DailyRecord();
-            dailyRecord.setUserId(userId);
-            logger.debug(dailyRecord.toString());
-            dailyRecordRepository.save(dailyRecord);
-        }
+
+        DailyRecord dailyRecord = returnDailyRecordOfDate(userId, localDate);
+
+        logger.debug(dailyRecord.toString());
 
         dailyRecord.setSleepAt(sleepRecordApiReqDto.getSleepAt());
         dailyRecord.setAwakeAt(sleepRecordApiReqDto.getAwakeAt());
