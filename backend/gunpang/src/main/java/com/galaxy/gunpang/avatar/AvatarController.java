@@ -1,10 +1,8 @@
 package com.galaxy.gunpang.avatar;
 
-import com.galaxy.gunpang.avatar.model.dto.AvatarGatchaResDto;
-import com.galaxy.gunpang.avatar.model.dto.AvatarNamingReqDto;
-import com.galaxy.gunpang.avatar.model.dto.AvatarResDto;
-import com.galaxy.gunpang.avatar.model.dto.AvatarWatchResDto;
+import com.galaxy.gunpang.avatar.model.dto.*;
 import com.galaxy.gunpang.avatar.service.AvatarService;
+import com.galaxy.gunpang.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,8 +22,9 @@ import org.springframework.web.bind.annotation.*;
 public class AvatarController {
 
     private final AvatarService avatarService;
+    private final UserService userService;
 
-    @Operation(summary = "아바타 랜덤 생성", description = "랜덤한 아바타를 생성한다.")
+    @Operation(summary = "랜덤 아바타 등록", description = "랜덤 생성한 아바타를 등록한다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = AvatarGatchaResDto.class)))
             , @ApiResponse(responseCode = "400", description = "잘못된 필드, 값 요청")
@@ -34,27 +33,12 @@ public class AvatarController {
             , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
     })
     @PostMapping("/gatcha")
-    public ResponseEntity<?> addRandom(@RequestParam("userId")Long userId){
-        log.debug("[POST] addRandom method {}", userId);
+    public ResponseEntity<?> addRandom(@RequestHeader("Authorization") String token, @RequestBody AvatarAddReqDto avatarAddReqDto){
+        log.debug("[POST] addRandom method {}", avatarAddReqDto);
 
-        AvatarGatchaResDto avatarGatchaResDto = avatarService.addRandomAvatar(userId);
+        Long userId = userService.getIdByToken(token).getId();
 
-        return ResponseEntity.ok().body(avatarGatchaResDto);
-    }
-
-    @Operation(summary = "아바타 이름 짓기", description = "아바타의 이름을 지어줍니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "요청 성공")
-            , @ApiResponse(responseCode = "400", description = "잘못된 필드, 값 요청")
-            , @ApiResponse(responseCode = "401", description = "로그인되지 않은 사용자")
-            , @ApiResponse(responseCode = "404", description = "존재하지 않는 아바타")
-            , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
-    })
-    @PutMapping("/name")
-    public ResponseEntity<?> naming(@RequestBody AvatarNamingReqDto avatarNamingReqDto){
-        log.debug("[PUT] naming method {}", avatarNamingReqDto);
-
-        avatarService.namingAvatar(avatarNamingReqDto);
+        avatarService.addRandomAvatar(userId, avatarAddReqDto);
 
         return ResponseEntity.ok().build();
     }
@@ -67,9 +51,11 @@ public class AvatarController {
             , @ApiResponse(responseCode = "404", description = "존재하지 않는 아바타")
             , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
     })
-    @GetMapping("/current-app")
-    public ResponseEntity<?> currentApp(@RequestParam("userId")Long userId){
-        log.debug("[GET] /avatar/current-app : current method, {}", userId);
+    @GetMapping("/app-current")
+    public ResponseEntity<?> currentApp(@RequestHeader("Authorization") String token){
+        Long userId = userService.getIdByToken(token).getId();
+
+        log.debug("[GET] /avatar/app-current : current method, {}", userId);
 
         AvatarResDto avatarResDto = avatarService.getCurAvatarResDto(userId);
 
@@ -84,9 +70,11 @@ public class AvatarController {
             , @ApiResponse(responseCode = "404", description = "존재하지 않는 아바타")
             , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
     })
-    @GetMapping("/current-watch")
-    public ResponseEntity<?> currentWatch(@RequestParam("userId")Long userId){
-        log.debug("[GET] /avatar/current-watch : current method, {}", userId);
+    @GetMapping("/watch-current")
+    public ResponseEntity<?> currentWatch(@RequestHeader("Authorization") String token){
+        Long userId = userService.getIdByToken(token).getId();
+
+        log.debug("[GET] /avatar/watch-current : current method, {}", userId);
 
         AvatarWatchResDto avatarWatchResDto = avatarService.getCurAvatarWatchResDto(userId);
 
@@ -101,9 +89,12 @@ public class AvatarController {
             , @ApiResponse(responseCode = "404", description = "현재 아바타가 존재하지 않음")
             , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
     })
-    @GetMapping("/{avatarId}")
-    public ResponseEntity<?> get(@PathVariable Long avatarId, @RequestParam("userId")Long userId){
-        log.debug("[GET] /avatar/{avatarId} : get method, {}, {}", avatarId, userId);
+    @PostMapping
+    public ResponseEntity<?> get(@RequestHeader("Authorization") String token, @RequestBody AvatarIdReqDto avatarIdReqDto){
+        Long userId = userService.getIdByToken(token).getId();
+        Long avatarId = avatarIdReqDto.getAvatarId();
+
+        log.debug("[POST] /avatar : get method, {}, {}", avatarId, userId);
 
         AvatarResDto avatarResDto = avatarService.getAvatarResDto(avatarId, userId);
 

@@ -40,25 +40,24 @@ public class AvatarProcessor {
         return this.dailyRecord.isPresent() && this.goal.isPresent();
     }
 
-    public Avatar checkDailyRecord(Avatar avatar){
+    public boolean checkDailyRecord(Avatar avatar, int damage, Cause cause){
+        if(!this.goal.isPresent()) return false;
         if(!dailyRecord.isPresent() && this.goal.isPresent()){
-            log.debug("미기록 체력 깎임");
-            byte hp = avatar.getHealthPoint();
-            hp = (byte)Math.max(0,hp - 3);
-            avatar.setHealthPoint(hp);
-            createDeathCause(avatar, Cause.SLEEP_BROKEN);
+            damaged(avatar, damage);
+            createDeathCause(avatar, cause);
+            log.debug("미기록으로 체력 깎임 : {}, {}", avatar.getId(), cause);
+            return false;
         }
-//        log.debug("체력 안깎임");
-        return avatar;
+        return true;
     }
     public Avatar exerciseProcess(Avatar avatar){
-        int todayOfWeek = now.getDayOfWeek().getValue() - 1;
+        if(!checkDailyRecord(avatar, 1, Cause.EXERCISE_LACK)) return avatar;
+        // 일 : 6, 월 : 5, 화 : 4, ... , 토 : 0
+        int todayOfWeek = 6 - (now.getDayOfWeek().getValue() % 7);
         byte exerciseDay = goal.get().getExerciseDay();
 
         if((exerciseDay & (1 << todayOfWeek)) != 0 && dailyRecord.get().getExerciseAccTime() < goal.get().getExerciseTime()){
-            byte hp = avatar.getHealthPoint();
-            hp = (byte)Math.max(0,hp - 1);
-            avatar.setHealthPoint(hp);
+            damaged(avatar, 1);
             createDeathCause(avatar, Cause.EXERCISE_LACK);
             log.debug("운동으로 체력 깎임 : {}", avatar.getId());
         }
@@ -66,6 +65,7 @@ public class AvatarProcessor {
     }
 
     public Avatar sleepProcess(Avatar avatar){
+        if(!checkDailyRecord(avatar, 1, Cause.SLEEP_BROKEN)) return avatar;
         LocalDateTime sleepStartTime =  LocalDateTime.of(now, goal.get().getSleepStartTime());
         LocalDateTime sleepEndTime = LocalDateTime.of(now, goal.get().getSleepEndTime());
         if(!sleepStartTime.isBefore(sleepEndTime)) sleepStartTime.minusDays(1);
@@ -73,58 +73,57 @@ public class AvatarProcessor {
 
         LocalDateTime sleepAt = dailyRecord.get().getSleepAt();
         LocalDateTime awakeAt = dailyRecord.get().getAwakeAt();
-        Duration overlap = Duration.between(sleepAt.isBefore(sleepStartTime)?sleepStartTime:sleepAt
+        Duration overlap = Duration.ZERO;
+        if(sleepAt != null && awakeAt != null)
+            overlap = Duration.between(sleepAt.isBefore(sleepStartTime)?sleepStartTime:sleepAt
                 , awakeAt.isAfter(sleepEndTime)?sleepEndTime:awakeAt);
 
         if(((double)overlap.toMinutes() / gap.toMinutes()) < 0.9){
-            byte hp = avatar.getHealthPoint();
-            hp = (byte)Math.max(0,hp - 1);
-            avatar.setHealthPoint(hp);
+            damaged(avatar, 1);
             createDeathCause(avatar, Cause.SLEEP_BROKEN);
-            log.debug(sleepStartTime.toString());
-            log.debug(sleepEndTime.toString());
-            log.debug(""+(sleepAt.isBefore(sleepStartTime)?sleepStartTime:sleepAt));
-            log.debug(""+(awakeAt.isAfter(sleepEndTime)?sleepEndTime:awakeAt));
-            log.debug(overlap.toMinutes() + " " + gap.toMinutes());
-            log.debug(""+ (double)overlap.toMinutes() / gap.toMinutes());
             log.debug("수면으로 체력 깎임 : {}", avatar.getId());
         }
         return avatar;
     }
 
     public Avatar foodProcess(Avatar avatar){
+        if(!checkDailyRecord(avatar, 1, Cause.FOOD_LACK)) return avatar;
         int mealCnt = 0;
         int unHealthCnt = 0;
 
-        if(dailyRecord.get().getBreakfastFoodType() == FoodType.NOT_RECORD){
+        if(dailyRecord.get().getBreakfastFoodType() == null || dailyRecord.get().getBreakfastFoodType() == FoodType.NOT_RECORD){
             ++mealCnt;
             ++unHealthCnt;
         }else if(dailyRecord.get().getBreakfastFoodType() == FoodType.BAD) ++unHealthCnt;
-        if(dailyRecord.get().getLunchFoodType() == FoodType.NOT_RECORD){
+        if(dailyRecord.get().getLunchFoodType() == null || dailyRecord.get().getLunchFoodType() == FoodType.NOT_RECORD){
             ++mealCnt;
             ++unHealthCnt;
         }else if(dailyRecord.get().getLunchFoodType() == FoodType.BAD) ++unHealthCnt;
-        if(dailyRecord.get().getDinnerFoodType() == FoodType.NOT_RECORD){
+        if(dailyRecord.get().getDinnerFoodType() == null || dailyRecord.get().getDinnerFoodType() == FoodType.NOT_RECORD){
             ++mealCnt;
             ++unHealthCnt;
         }else if(dailyRecord.get().getDinnerFoodType() == FoodType.BAD) ++unHealthCnt;
 
         if(mealCnt < 3 || unHealthCnt > 1){
-            byte hp = avatar.getHealthPoint();
-            hp = (byte)Math.max(0,hp - 1);
-            avatar.setHealthPoint(hp);
+            damaged(avatar, 1);
             createDeathCause(avatar, Cause.FOOD_LACK);
             log.debug("식사로 체력 깎임 : {}", avatar.getId());
         }
         return avatar;
     }
 
+    private void damaged(Avatar avatar, int damage){
+        byte hp = avatar.getHealthPoint();
+        hp = (byte)Math.max(0,hp - damage);
+        avatar.setHealthPoint(hp);
+    }
+
     private void createDeathCause(Avatar avatar, Cause cause){
-        if(avatar.getHealthPoint() > 0) return;
         DeathCause deathCause = DeathCause.builder().avatar(avatar).cause(cause).build();
         deathCauseRepository.save(deathCause);
-        avatar.setDeathCause(deathCause);
-        avatar.setStatus(Status.DEAD);
-        avatar.setFinishedDate(LocalDate.now());
+        if(avatar.getHealthPoint() <= 0) {
+            avatar.setStatus(Status.DEAD);
+            avatar.setFinishedDate(LocalDate.now());
+        }
     }
 }

@@ -15,7 +15,7 @@ public class DeathCause extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(nullable = false)
     private Avatar avatar;
     @Enumerated(EnumType.STRING)

@@ -28,7 +28,6 @@ public class AvatarScheduler {
     private final Job damageJob;
     private final Job levelUpJob;
 
-    @Async
     @Scheduled(cron = "0 */5 * * * *")
     public void run(){
         Map<String, JobParameter> confMap = new HashMap<>();

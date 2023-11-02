@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Getter
@@ -22,9 +23,8 @@ public class Avatar extends BaseEntity {
     @ManyToOne
     @JoinColumn(nullable = false)
     private User user;
-    @ManyToOne
-    @JoinColumn(nullable = false)
-    private AvatarType avatarType;
+    @Column(length = 20, nullable = false)
+    private String avatarType;
     @Column(length = 6, nullable = false)
     private String name;
     @Enumerated(EnumType.STRING)
@@ -38,8 +38,8 @@ public class Avatar extends BaseEntity {
     @Column(nullable = false)
     private LocalDate startedDate;
     private LocalDate finishedDate;
-    @OneToOne(mappedBy = "avatar", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
-    private DeathCause deathCause;
+    @OneToMany(mappedBy = "avatar", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<DeathCause> deathCauses;
     @OneToOne(mappedBy = "avatar", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     private Goal goal;
 
@@ -47,13 +47,12 @@ public class Avatar extends BaseEntity {
         this.name = name;
     }
     public void setHealthPoint(byte healthPoint){this.healthPoint = healthPoint;}
-    public void setDeathCause(DeathCause deathCause){this.deathCause = deathCause;}
     public void setStatus(Status status){this.status = status;}
     public void setFinishedDate(LocalDate finishedDate) {this.finishedDate = finishedDate;}
     public void setStage(Stage stage){this.stage = stage;}
 
     @Builder
-    public Avatar(Long id, User user, AvatarType avatarType, String name, Stage stage, Status status, byte healthPoint, LocalDate startedDate, LocalDate finishedDate, DeathCause deathCause, Goal goal){
+    public Avatar(Long id, User user, String avatarType, String name, Stage stage, Status status, byte healthPoint, LocalDate startedDate, LocalDate finishedDate){
         this.id = id;
         this.user = user;
         this.avatarType = avatarType;
@@ -63,7 +62,7 @@ public class Avatar extends BaseEntity {
         this.healthPoint = healthPoint;
         this.startedDate = startedDate;
         this.finishedDate = finishedDate;
-        this.deathCause = deathCause;
-        this.goal = goal;
+//        this.deathCauses = deathCauses;
+//        this.goal = goal;
     }
 }
