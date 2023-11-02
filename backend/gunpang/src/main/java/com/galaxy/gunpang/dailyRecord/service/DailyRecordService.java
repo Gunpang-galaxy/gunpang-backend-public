@@ -1,5 +1,6 @@
 package com.galaxy.gunpang.dailyRecord.service;
 
+import com.galaxy.gunpang.dailyRecord.model.DailyRecord;
 import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordForWatchResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordOnCalendarResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordResDto;
@@ -7,6 +8,7 @@ import com.galaxy.gunpang.dailyRecord.model.dto.SleepRecordApiReqDto;
 import com.galaxy.gunpang.dailyRecord.model.enums.FoodType;
 import com.galaxy.gunpang.dailyRecord.model.enums.TimeToEat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,4 +26,6 @@ public interface DailyRecordService {
     void recordSleepWithHealthConnectApi(long userId, SleepRecordApiReqDto sleepRecordApiReqDto);
 
     CheckDailyRecordForWatchResDto checkDailyRecordForWatch(Long userId, String date);
+
+    DailyRecord returnDailyRecordOfDate(Long userId, LocalDate today);
 }

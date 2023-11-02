@@ -4,6 +4,7 @@ package com.galaxy.gunpang.exercise;
 import com.galaxy.gunpang.exercise.model.dto.ExerciseRecordReqDto;
 import com.galaxy.gunpang.exercise.service.ExerciseService;
 import com.galaxy.gunpang.user.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class ExerciseController {
     private final ExerciseService exerciseService;
     private final UserService userService;
 
-
+    @Operation(summary = "오늘 운동 기록", description = "오늘 운동한 기록을 저장합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "운동 기록 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
