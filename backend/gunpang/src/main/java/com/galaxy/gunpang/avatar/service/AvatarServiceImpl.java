@@ -61,6 +61,22 @@ public class AvatarServiceImpl implements AvatarService{
 //                .build();
     }
 
+    @Override
+    public void addWithBefore(Long userId, AvatarAddReqDto avatarAddReqDto, int n) {
+        User user = userRepository.getReferenceById(userId);
+        if(avatarRepository.existsByUser_IdAndStatus(userId, Status.ALIVE)) throw new AvatarAlreadyExistException(userId);
+        Avatar avatar = Avatar.builder()
+                .avatarType(avatarAddReqDto.getAvatarType())
+                .user(user)
+                .name(avatarAddReqDto.getName())
+                .healthPoint((byte) 10)
+                .stage(Stage.LAND)
+                .status(Status.ALIVE)
+                .startedDate(LocalDate.now().minusDays(n))
+                .build();
+        avatarRepository.save(avatar);
+    }
+
 //    @Override
 //    public void namingAvatar(AvatarAddReqDto avatarAddReqDto) {
 //        Avatar avatar = avatarRepository.findById(avatarAddReqDto.getAvatarId()).orElseThrow(

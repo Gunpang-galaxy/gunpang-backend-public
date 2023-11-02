@@ -1,5 +1,15 @@
 package com.galaxy.gunpang.develop;
 
+import com.galaxy.gunpang.avatar.model.dto.AvatarAddReqDto;
+import com.galaxy.gunpang.avatar.repository.AvatarRepository;
+import com.galaxy.gunpang.avatar.service.AvatarService;
+import com.galaxy.gunpang.goal.model.dto.GoalReqDto;
+import com.galaxy.gunpang.goal.service.GoalService;
+import com.galaxy.gunpang.user.model.dto.LogInResDto;
+import com.galaxy.gunpang.user.model.dto.SignUpReqDto;
+import com.galaxy.gunpang.user.service.JwtService;
+import com.galaxy.gunpang.user.service.RedisService;
+import com.galaxy.gunpang.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -17,6 +27,7 @@ import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
@@ -31,6 +42,14 @@ public class DevelopController {
     private final JobLauncher jobLauncher;
     private final Job damageJob;
     private final Job levelUpJob;
+    private final UserService userService;
+    private final AvatarService avatarService;
+    private final GoalService goalService;
+    private final JwtService jwtService;
+    private final RedisService redisService;
+
+    private final AvatarRepository avatarRepository;
+
     @Operation(summary = "아바타 체력 변화", description = "ALIVE 상태의 전체 아바타에 로직 실행")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공")
@@ -87,5 +106,65 @@ public class DevelopController {
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "테스트 데이터 넣기", description = "유저, 아바타, 목표 생성")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "요청 성공")
+            , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
+    })
+    @PostMapping("/test-data")
+    public ResponseEntity<?> data(){
+        log.debug("[PUT] hp method {}");
+
+        String googleId = userService.addUser(SignUpReqDto.builder()
+                .googleId("gunpang")
+                        .birthYear(1996)
+                        .email("pang@google.com")
+                        .height(180)
+                        .gender("MALE")
+                .build()).getGoogleId();
+
+        Long userId = userService.getIdByGoogleId(googleId).getId();
+
+        avatarService.addRandomAvatar(userId, new AvatarAddReqDto("AVATAR_CAT", "팡이"));
+
+        goalService.addGoal(userId, new GoalReqDto(11, 30, 6,30, 127, 30));
+
+        LogInResDto logInResDto = jwtService.createTokens(googleId);
+        redisService.setTokens(logInResDto);
+
+        return ResponseEntity.ok().body(logInResDto);
+    }
+
+    @Operation(summary = "테스트 n일전 데이터 넣기", description = "유저, 아바타, 목표 생성")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "요청 성공")
+            , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
+    })
+    @PostMapping("/test-n-data")
+    public ResponseEntity<?> nData(@RequestParam int n){
+        log.debug("[PUT] hp method {}");
+
+        String googleId = userService.addUser(SignUpReqDto.builder()
+                .googleId("gunpang")
+                .birthYear(1996)
+                .email("pang@google.com")
+                .height(180)
+                .gender("MALE")
+                .build()).getGoogleId();
+
+        Long userId = userService.getIdByGoogleId(googleId).getId();
+
+        avatarService.addWithBefore(userId, new AvatarAddReqDto("AVATAR_CAT", "팡이"), n);
+
+        Long avatarId = avatarRepository.getCurIdByUserId(userId).get();
+
+        goalService.addGoal(userId, new GoalReqDto(11, 30, 6,30, 127, 30));
+
+        LogInResDto logInResDto = jwtService.createTokens(googleId);
+        redisService.setTokens(logInResDto);
+
+        return ResponseEntity.ok().body(logInResDto);
     }
 }

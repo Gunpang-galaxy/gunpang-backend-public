@@ -7,7 +7,7 @@ import com.galaxy.gunpang.avatar.model.dto.AvatarWatchResDto;
 
 public interface AvatarService {
     public void addRandomAvatar(Long userId, AvatarAddReqDto avatarAddReqDto);
-//    public void namingAvatar(AvatarAddReqDto avatarAddReqDto);
+    public void addWithBefore(Long userId, AvatarAddReqDto avatarAddReqDto, int n);
     public AvatarResDto getCurAvatarResDto(Long userId);
     public AvatarWatchResDto getCurAvatarWatchResDto(Long userId);
     public AvatarResDto getAvatarResDto(Long avatarId, Long userId);
