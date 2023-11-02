@@ -15,9 +15,9 @@ public class DailyRecordRepositoryImpl implements DailyRecordRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Optional<DailyRecord> getDailyRecordOnTodayByUserId(Long userId, LocalDate today) {
+    public Optional<DailyRecord> getDailyRecordOnTodayByUserId(Long userId, LocalDate date) {
         return Optional.ofNullable(queryFactory.selectFrom(dailyRecord)
-                .where(dailyRecord.userId.eq(userId).and(dailyRecord.recordDate.eq(today)))
+                .where(dailyRecord.userId.eq(userId).and(dailyRecord.recordDate.eq(date)))
                 .fetchFirst());
     }
 }
