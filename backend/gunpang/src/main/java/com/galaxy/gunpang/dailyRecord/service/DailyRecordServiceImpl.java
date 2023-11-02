@@ -202,9 +202,7 @@ public class DailyRecordServiceImpl implements DailyRecordService {
         //변환해줘야 가능
         LocalDate localDate = LocalDate.parse(date);
 
-        DailyRecord dailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(userId, localDate).orElseThrow(
-                () -> new DailyRecordNotFoundException(localDate)
-        );
+        DailyRecord dailyRecord = returnDailyRecordOfDate(userId, localDate);
 
         List<Exercise> exercises = exerciseRepository.getDailyExerciseRecordOnDateByRecordId(dailyRecord.getId()).orElseThrow(
                 //비어있어도 에러 안남... 안나는게 맞는듯
@@ -217,30 +215,35 @@ public class DailyRecordServiceImpl implements DailyRecordService {
         for (int i = 0; i < exercises.size(); i++) {
             //운동 시간 계산
             Duration duration = Duration.between(exercises.get(i).getStartedTime(), exercises.get(i).getFinishedTime());
-            String exerciseAccTime = String.format("%02d:%02d:%02d",
+            String exerciseAccTime = String.format("%02d시간 %02d분",
                     duration.toHours(),
-                    duration.toMinutesPart(),
-                    duration.toSecondsPart());
+                    duration.toMinutesPart());
 
             exerciseOnDates.add(CheckDailyRecordOnCalendarResDto.ExerciseOnDate.builder()
                     .exerciseAccTime(exerciseAccTime)
                     .exerciseIntensity(exercises.get(i).getExerciseIntensity())
                     .build());
         }
-        Duration duration = Duration.ofSeconds(dailyRecord.getExerciseAccTime());
-        String formattedTime = String.format("%02d:%02d:%02d",
-                duration.toHours(),
-                duration.toMinutesPart(),
-                duration.toSecondsPart());
+
+        String exerciseTime = convertExerciseAccTimeSecondToString(dailyRecord);
+
+        //foodType null 처리
+        FoodType breakFastFoodType = processNullOnFoodType(dailyRecord.getBreakfastFoodType());
+        FoodType lunchFoodType = processNullOnFoodType(dailyRecord.getLunchFoodType());
+        FoodType dinnerFoodType = processNullOnFoodType(dailyRecord.getDinnerFoodType());
+
+        //sleep null 처리
+        String sleepAt = processNullOnSleep(dailyRecord.getSleepAt());
+        String awakeAt = processNullOnSleep(dailyRecord.getAwakeAt());
 
         logger.debug(dailyRecord.toString());
         CheckDailyRecordOnCalendarResDto checkDailyRecordOnCalendarResDto = CheckDailyRecordOnCalendarResDto.builder()
-                .breakfastFoodType(dailyRecord.getBreakfastFoodType())
-                .lunchFoodType(dailyRecord.getLunchFoodType())
-                .dinnerFoodType(dailyRecord.getDinnerFoodType())
-                .exerciseTime(formattedTime)
-                .sleepAt(dailyRecord.getSleepAt().toString())
-                .awakeAt(dailyRecord.getAwakeAt().toString())
+                .breakfastFoodType(breakFastFoodType)
+                .lunchFoodType(lunchFoodType)
+                .dinnerFoodType(dinnerFoodType)
+                .exerciseTime(exerciseTime)
+                .sleepAt(sleepAt)
+                .awakeAt(awakeAt)
                 .exercisesOnDate(exerciseOnDates)
                 .build();
 
