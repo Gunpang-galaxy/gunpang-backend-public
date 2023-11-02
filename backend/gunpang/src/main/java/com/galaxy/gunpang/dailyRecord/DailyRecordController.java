@@ -5,6 +5,7 @@ import com.galaxy.gunpang.dailyRecord.model.enums.FoodType;
 import com.galaxy.gunpang.dailyRecord.service.DailyRecordService;
 import com.galaxy.gunpang.exercise.service.ExerciseService;
 import com.galaxy.gunpang.user.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class DailyRecordController {
     private final UserService userService;
     private static final Logger logger = LoggerFactory.getLogger(DailyRecordController.class);
 
+    @Operation(summary = "하루 기록 생성", description = "하루 기록을 생성합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "하루 기록 생성 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
@@ -39,7 +41,7 @@ public class DailyRecordController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-
+    @Operation(summary = "오늘 수면 기록", description = "수동으로 저장하는 용도")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "수면 기록 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
@@ -55,6 +57,7 @@ public class DailyRecordController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @Operation(summary = "오늘 수면 기록", description = "삼성 헬스에서 받아서 저장하는 용도")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "삼성 헬스 수면 기록 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청. 기록 날짜와 오늘이 다름"),
@@ -70,6 +73,7 @@ public class DailyRecordController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @Operation(summary = "오늘 식사 기록", description = "오늘 식사한 기록을 저장합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "식사 기록 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
@@ -85,6 +89,7 @@ public class DailyRecordController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @Operation(summary = "하루 기록 조회", description = "메인 화면용")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "하루 기록 가져오기 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
@@ -100,6 +105,7 @@ public class DailyRecordController {
         return new ResponseEntity<>(checkDailyRecordResDto, HttpStatus.OK);
     }
 
+    @Operation(summary = "하루 기록 조회", description = "워치용")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "하루 기록 가져오기 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
@@ -115,6 +121,7 @@ public class DailyRecordController {
         return new ResponseEntity<>(checkDailyRecordForWatchResDto, HttpStatus.OK);
     }
 
+    @Operation(summary = "하루 기록 조회", description = "달력용")
     @GetMapping(value = "/records/calendar")
     public ResponseEntity<?> checkDailyRecordOnCalendar(@RequestHeader("Authorization") String token, @RequestParam String date){
 
