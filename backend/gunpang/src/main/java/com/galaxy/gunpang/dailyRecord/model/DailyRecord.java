@@ -3,6 +3,8 @@ package com.galaxy.gunpang.dailyRecord.model;
 import com.galaxy.gunpang.common.model.BaseEntity;
 import com.galaxy.gunpang.dailyRecord.model.enums.FoodType;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
@@ -16,6 +18,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @ToString
+@DynamicInsert
 @Table(name = "DAILY_RECORD")
 public class DailyRecord extends BaseEntity {
     @GeneratedValue
@@ -30,6 +33,7 @@ public class DailyRecord extends BaseEntity {
     private LocalDate recordDate;
 
     @Column()
+    @ColumnDefault("0")
     private Long exerciseAccTime;
 
     @Column()

@@ -9,7 +9,6 @@ import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordOnCalendarResDto
 import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.SleepRecordApiReqDto;
 import com.galaxy.gunpang.dailyRecord.model.enums.FoodType;
-import com.galaxy.gunpang.dailyRecord.model.enums.TimeToEat;
 import com.galaxy.gunpang.dailyRecord.repository.DailyRecordRepository;
 import com.galaxy.gunpang.exercise.model.Exercise;
 import com.galaxy.gunpang.exercise.repository.ExerciseRepository;
@@ -23,6 +22,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import static com.galaxy.gunpang.dailyRecord.model.enums.FoodType.NOT_RECORD;
 
 @RequiredArgsConstructor
 @Service
@@ -33,6 +35,45 @@ public class DailyRecordServiceImpl implements DailyRecordService {
 
     private static final Logger logger = LoggerFactory.getLogger(DailyRecordService.class);
 
+    public String convertExerciseAccTimeSecondToString(DailyRecord dailyRecord) {
+        Duration duration = Duration.ofSeconds(dailyRecord.getExerciseAccTime());
+
+        return String.format("%02d시 %02d분",
+                duration.toHours(),
+                duration.toMinutesPart());
+    }
+
+    public FoodType processNullOnFoodType(FoodType foodType) {
+        if (foodType == null) {
+            foodType = NOT_RECORD;
+        }
+        return foodType;
+    }
+
+    public String processNullOnSleep(LocalDateTime sleepTime) {
+        String sleepTimeToString = "-1";
+        if (sleepTime != null) {
+            logger.debug("sleepAt : " + sleepTimeToString);
+            //여기가 문제
+            sleepTimeToString = String.format("%02d:%02d", sleepTime.getHour(), sleepTime.getMinute());
+            logger.debug("sleepAt : " + sleepTimeToString);
+        }
+        return sleepTimeToString;
+    }
+
+    public DailyRecord returnDailyRecordOfDate(Long userId, LocalDate date) {
+
+        Optional<DailyRecord> dailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(userId, date);
+
+        if (dailyRecord.isPresent()) {
+            return dailyRecord.get();
+        } else {
+            createRecord(userId);
+            Optional<DailyRecord> createdDailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(userId, date);
+            return createdDailyRecord.get();
+        }
+    }
+
     @Override
     public void createRecord(Long userId) {
         //LocalDate today = LocalDate.now();
@@ -41,11 +82,9 @@ public class DailyRecordServiceImpl implements DailyRecordService {
             dailyRecord.setUserId(userId);
             logger.debug(dailyRecord.toString());
             dailyRecordRepository.save(dailyRecord);
-
         } catch (Exception e) {
             e.getMessage();
         }
-
     }
 
     @Override
@@ -106,30 +145,33 @@ public class DailyRecordServiceImpl implements DailyRecordService {
 
     @Override
     public CheckDailyRecordResDto checkDailyRecord(Long userId, String date) {
-        //해당 날짜에 맞는 기록 가져와보기
-        //없으면 오류, 있으면 그 기록에서 정보 담아서 전달
-        //변환해줘야 가능
+
         LocalDate localDate = LocalDate.parse(date);
-        CheckDailyRecordResDto checkDailyRecordResDto = null;
-        DailyRecord dailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(userId, localDate).orElseThrow(
-                () -> new DailyRecordNotFoundException(localDate)
-        );
+        CheckDailyRecordResDto checkDailyRecordResDto;
+
+        DailyRecord dailyRecord = returnDailyRecordOfDate(userId, localDate);
         logger.debug(dailyRecord.toString());
 
-        Duration duration = Duration.ofSeconds(dailyRecord.getExerciseAccTime());
+        String exerciseAccTime = convertExerciseAccTimeSecondToString(dailyRecord);
 
-        String formattedTime = String.format("%02d:%02d:%02d",
-                duration.toHours(),
-                duration.toMinutesPart(),
-                duration.toSecondsPart());
+        logger.debug("exerciseAccTime : " + exerciseAccTime);
+
+        //foodType null 처리
+        FoodType breakFastFoodType = processNullOnFoodType(dailyRecord.getBreakfastFoodType());
+        FoodType lunchFoodType = processNullOnFoodType(dailyRecord.getLunchFoodType());
+        FoodType dinnerFoodType = processNullOnFoodType(dailyRecord.getDinnerFoodType());
+
+        //sleep null 처리
+        String sleepAt = processNullOnSleep(dailyRecord.getSleepAt());
+        String awakeAt = processNullOnSleep(dailyRecord.getAwakeAt());
 
         checkDailyRecordResDto = CheckDailyRecordResDto.builder()
-                .breakfastFoodType(dailyRecord.getBreakfastFoodType())
-                .lunchFoodType(dailyRecord.getLunchFoodType())
-                .dinnerFoodType(dailyRecord.getDinnerFoodType())
-                .exerciseTime(formattedTime)
-                .sleepAt(dailyRecord.getSleepAt().toString())
-                .awakeAt(dailyRecord.getAwakeAt().toString())
+                .breakfastFoodType(breakFastFoodType)
+                .lunchFoodType(lunchFoodType)
+                .dinnerFoodType(dinnerFoodType)
+                .exerciseTime(exerciseAccTime)
+                .sleepAt(sleepAt)
+                .awakeAt(awakeAt)
                 .build();
 
         return checkDailyRecordResDto;
