@@ -24,8 +24,9 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public GoogleIdResDto getGoogleId(String accessToken) {
+        String accessTokenParsed = jwtUtil.removeBearer(accessToken);
         return GoogleIdResDto.builder()
-                .googleId(jwtUtil.getGoogleIdFromToken(accessToken))
+                .googleId(jwtUtil.getGoogleIdFromToken(accessTokenParsed))
                 .build();
     }
 
