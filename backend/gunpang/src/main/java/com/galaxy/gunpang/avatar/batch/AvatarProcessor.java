@@ -119,7 +119,7 @@ public class AvatarProcessor {
     }
 
     private void createDeathCause(Avatar avatar, Cause cause){
-        DeathCause deathCause = DeathCause.builder().avatar(avatar).cause(cause).build();
+        DeathCause deathCause = DeathCause.builder().avatar(avatar).cause(cause).date(now).build();
         deathCauseRepository.save(deathCause);
         if(avatar.getHealthPoint() <= 0) {
             avatar.setStatus(Status.DEAD);

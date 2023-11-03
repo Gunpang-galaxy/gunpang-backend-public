@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -21,11 +22,13 @@ public class DeathCause extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "char(16)", nullable = false)
     private Cause cause;
+    private LocalDate date;
 
     @Builder
-    public DeathCause(Long id, Avatar avatar, Cause cause){
+    public DeathCause(Long id, Avatar avatar, Cause cause, LocalDate date){
         this.id = id;
         this.avatar = avatar;
         this.cause = cause;
+        this.date = date;
     }
 }
