@@ -16,8 +16,8 @@ import java.util.Date;
 public class JwtUtil {
 
     private final byte[] jwtSecretBytes;
-    private final static Long ACCESS_TOKEN_VALID_TIME = 24 * 60 * 60 * 1000L; // 24시간
-    private final static Long REFRESH_TOKEN_VALID_TIME = 7 * 24 * 60 * 60 * 1000L; // 7일
+    private final static Long ACCESS_TOKEN_VALID_TIME = 24 * 60 * 60 * 1000L * 7 * 4; // 4주
+    private final static Long REFRESH_TOKEN_VALID_TIME = 24 * 60 * 60 * 1000L * 7 * 4 * 6; // 4주 * 6
 
     public JwtUtil(@Value("${jwt.secret}") String jwtSecret) {
         this.jwtSecretBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
@@ -99,7 +99,7 @@ public class JwtUtil {
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.split(" ")[1];
         }
-        return null;
+        return bearerToken;
     }
 
     public Long getRefreshTokenValidTimeAsDay() {

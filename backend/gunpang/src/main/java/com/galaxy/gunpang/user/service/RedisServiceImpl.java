@@ -1,6 +1,7 @@
 package com.galaxy.gunpang.user.service;
 
 import com.galaxy.gunpang.user.model.dto.AccessTokenResDto;
+import com.galaxy.gunpang.user.model.dto.GoogleIdResDto;
 import com.galaxy.gunpang.user.model.dto.LogInResDto;
 import com.galaxy.gunpang.user.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -20,47 +21,47 @@ public class RedisServiceImpl implements RedisService {
     private final JwtUtil jwtUtil;
 
     @Override
-    public void setTokens(LogInResDto logInResDto) {
+    public void setTokens(String id, String tokens) {
         ValueOperations<String, String> values = redisTemplate.opsForValue();
-        String tokens = logInResDto.getAccessToken() + "," + logInResDto.getRefreshToken();
         log.info("Redis에 Access Token과 Refresh Token을 등록합니다. : " + tokens);
-        values.set(logInResDto.getGoogleId(), tokens, Duration.ofDays(jwtUtil.getRefreshTokenValidTimeAsDay()));
+        values.set(id, tokens, Duration.ofDays(jwtUtil.getRefreshTokenValidTimeAsDay()));
     }
 
     @Override
-    public void setTokens(String id, String tokens) {
-        ValueOperations<String, String> values = redisTemplate.opsForValue();
-        values.set(id, tokens, Duration.ofDays(jwtUtil.getRefreshTokenValidTimeAsDay()));
+    public void setTokens(LogInResDto logInResDto) {
+        String tokens = logInResDto.getAccessToken() + "," + logInResDto.getRefreshToken();
+        setTokens(logInResDto.getGoogleId(), tokens);
     }
 
     @Override
     public String getTokens(String id) {
         ValueOperations<String, String> values = redisTemplate.opsForValue();
-
         return values.get(id);
     }
 
     @Override
-    public void updateTokens(String id, String tokens) {
+    public void deleteTokens(String id) {
         ValueOperations<String, String> values = redisTemplate.opsForValue();
-
-        values.getOperations().delete(id);
         log.info("id가 " + id + "인 Token 정보를 삭제합니다.");
-        setTokens(id, tokens);
-        log.info("Redis에 새로운 Access Token과 Refresh Token을 등록합니다. : " + tokens);
+        values.getOperations().delete(id);
+    }
 
+    @Override
+    public void deleteTokens(GoogleIdResDto googleIdResDto) {
+        deleteTokens(googleIdResDto.getGoogleId());
+    }
+
+    @Override
+    public void updateTokens(String id, String tokens) {
+        deleteTokens(id);
+        setTokens(id, tokens);
     }
 
     @Override
     public void updateTokens(LogInResDto logInResDto) {
-        ValueOperations<String, String> values = redisTemplate.opsForValue();
-
         String googleId = logInResDto.getGoogleId();
         String tokens = logInResDto.getAccessToken() + "," + logInResDto.getRefreshToken();
-        values.getOperations().delete(googleId);
-        log.info("id가 " + googleId + "인 Token 정보를 삭제합니다.");
-        values.set(googleId, tokens, Duration.ofDays(jwtUtil.getRefreshTokenValidTimeAsDay()));
-        log.info("Redis에 Access Token과 Refresh Token을 등록합니다. : " + tokens);
+        updateTokens(googleId, tokens);
     }
 
     @Override
@@ -68,18 +69,15 @@ public class RedisServiceImpl implements RedisService {
         ValueOperations<String, String> values = redisTemplate.opsForValue();
 
         String googleId = jwtUtil.getGoogleIdFromToken(accessToken);
-        String refreshToken = (values.get(googleId)).split(",")[1];
+        String refreshToken = (getTokens(googleId)).split(",")[1];
         String newAccessToken = jwtUtil.recreateAccessToken(refreshToken);
         String tokens = newAccessToken + "," + refreshToken;
 
-        values.getOperations().delete(googleId);
-        log.info("id가 " + googleId + "인 Token 정보를 삭제합니다.");
-
-        setTokens(googleId, tokens);
-        log.info("Redis에 새로운 Access Token과 Refresh Token을 등록합니다. : " + tokens);
+        updateTokens(googleId, tokens);
 
         return AccessTokenResDto.builder()
                 .accessToken(newAccessToken)
                 .build();
     }
+
 }
