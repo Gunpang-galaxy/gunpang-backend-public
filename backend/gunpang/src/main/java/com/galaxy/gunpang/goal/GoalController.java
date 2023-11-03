@@ -1,6 +1,7 @@
 package com.galaxy.gunpang.goal;
 
 import com.galaxy.gunpang.avatar.model.dto.AvatarIdReqDto;
+import com.galaxy.gunpang.avatar.service.AvatarService;
 import com.galaxy.gunpang.common.model.dto.MessageResDto;
 import com.galaxy.gunpang.goal.model.Goal;
 import com.galaxy.gunpang.goal.model.dto.CalendarResDto;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 public class GoalController {
     private final GoalService goalService;
     private final UserService userService;
+    private final AvatarService avatarService;
 
     @Operation(summary = "아바타 목표 입력", description = "아바타의 목표를 생성합니다.")
     @ApiResponses({
@@ -50,15 +52,19 @@ public class GoalController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공")
             , @ApiResponse(responseCode = "400", description = "잘못된 필드, 값 요청")
-            , @ApiResponse(responseCode = "401", description = "로그인되지 않은 사용자")
+            , @ApiResponse(responseCode = "401", description = "로그인되지 않은 사용자, 권한이 없는 사용자")
             , @ApiResponse(responseCode = "404", description = "존재하지 않는 대상(아바타, 목표)")
             , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
     })
-    @PostMapping
-    public ResponseEntity<?> get(@RequestBody AvatarIdReqDto avatarIdReqDto){
-        log.debug("[POST] get method {}", avatarIdReqDto);
+    @GetMapping("/{avatarId}")
+    public ResponseEntity<?> get(@RequestHeader("Authorization") String token, @PathVariable Long avatarId){
+        Long userId = userService.getIdByToken(token).getId();
 
-        GoalResDto goalResDto =  goalService.getGoal(avatarIdReqDto);
+        log.debug("[POST] get method {} {}", userId, avatarId);
+
+        avatarService.authenticate(avatarId, userId);
+
+        GoalResDto goalResDto =  goalService.getGoal(avatarId);
 
         return ResponseEntity.ok().body(goalResDto);
     }
@@ -71,7 +77,7 @@ public class GoalController {
             , @ApiResponse(responseCode = "404", description = "존재하지 않는 대상(아바타, 목표)")
             , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
     })
-    @GetMapping
+    @GetMapping("/monthly")
     public ResponseEntity<?> getCalendar(@RequestHeader("Authorization") String token, @RequestParam int year, @RequestParam int month){
         Long userId = userService.getIdByToken(token).getId();
 

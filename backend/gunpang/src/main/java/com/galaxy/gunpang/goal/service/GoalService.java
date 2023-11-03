@@ -7,7 +7,7 @@ import com.galaxy.gunpang.goal.model.dto.GoalResDto;
 
 public interface GoalService {
     public void addGoal(Long userId, GoalReqDto goalReqDto);
-    public GoalResDto getGoal(AvatarIdReqDto avatarIdReqDto);
+    public GoalResDto getGoal(Long avatarId);
 
     public CalendarResDto getCalendar(Long userId, int year, int month);
 }
