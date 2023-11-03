@@ -7,7 +7,6 @@ import com.galaxy.gunpang.user.model.enums.Gender;
 import com.galaxy.gunpang.user.repository.UserRepository;
 import com.galaxy.gunpang.user.utils.JwtUtil;
 import com.galaxy.gunpang.user.utils.UserUtil;
-import com.google.firebase.auth.UserInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -96,6 +95,13 @@ public class UserServiceImpl implements UserService {
                 .birthYear(user.getBirthYear()).build();
 
         return userInfoResDto;
+    }
+
+    @Override
+    public UserExistenceResDto findUserByEmail(String email) {
+        return UserExistenceResDto.builder()
+                .isUser(userRepository.findByEmail(email) != null)
+                .build();
     }
 
 

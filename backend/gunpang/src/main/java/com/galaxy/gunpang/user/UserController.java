@@ -1,6 +1,7 @@
 package com.galaxy.gunpang.user;
 
 import com.galaxy.gunpang.notification.NotificationController;
+import com.galaxy.gunpang.user.exception.UserAlreadyExistsException;
 import com.galaxy.gunpang.user.exception.UserNotFoundException;
 import com.galaxy.gunpang.user.model.dto.*;
 import com.galaxy.gunpang.user.service.JwtService;
@@ -47,7 +48,7 @@ public class UserController {
         // 3. 회원이면 로그인 + 토큰 발급
         if (userService.existsByGoogleId(googleId).isUser()) {
             LogInResDto logInResDto = jwtService.createTokens(googleId);
-            redisService.setTokens(logInResDto);
+            redisService.updateTokens(logInResDto);
             return ResponseEntity.ok().body(logInResDto);
         } else {
             throw new UserNotFoundException(googleId);
@@ -58,11 +59,18 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = SignUpResDto.class)))
             , @ApiResponse(responseCode = "400", description = "잘못된 필드, 값 요청")
+            , @ApiResponse(responseCode = "409", description = "이미 존재하는 이메일")
             , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
     })
     @PostMapping
     public ResponseEntity<?> signUp(@RequestBody SignUpReqDto signUpReqDto){
         log.debug("[POST] signUp method {}", signUpReqDto);
+
+        // email로 회원인지 확인 (google Id는 로그인에서 확인해서 확인하지 않음)
+        String userEmail = signUpReqDto.getEmail();
+        if (userService.findUserByEmail(userEmail).isUser()) {
+            throw new UserAlreadyExistsException(userEmail);
+        }
 
         SignUpResDto signUpResDto = userService.addUser(signUpReqDto);
         return logIn(signUpResDto.getGoogleId());
@@ -136,8 +144,9 @@ public class UserController {
     })
     @GetMapping(value = "/info")
     public ResponseEntity getUserInfo (@RequestHeader("Authorization") String token) throws Exception {
+        log.debug("[GET] getUserInfo method {}", token);
+
         Long userId = userService.getIdByToken(token).getId();
-        logger.debug("controller");
         UserInfoResDto userInfoResDto = userService.getUserInfo(userId);
         return ResponseEntity.ok().body(userInfoResDto);
     }
