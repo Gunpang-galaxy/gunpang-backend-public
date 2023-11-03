@@ -1,7 +1,12 @@
 package com.galaxy.gunpang.develop;
 
+import com.galaxy.gunpang.avatar.model.Avatar;
+import com.galaxy.gunpang.avatar.model.DeathCause;
 import com.galaxy.gunpang.avatar.model.dto.AvatarAddReqDto;
+import com.galaxy.gunpang.avatar.model.dto.AvatarResDto;
+import com.galaxy.gunpang.avatar.model.enums.Cause;
 import com.galaxy.gunpang.avatar.repository.AvatarRepository;
+import com.galaxy.gunpang.avatar.repository.DeathCauseRepository;
 import com.galaxy.gunpang.avatar.service.AvatarService;
 import com.galaxy.gunpang.goal.model.dto.GoalReqDto;
 import com.galaxy.gunpang.goal.service.GoalService;
@@ -16,6 +21,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.utility.RandomString;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.JobParameters;
@@ -25,13 +31,10 @@ import org.springframework.batch.core.repository.JobExecutionAlreadyRunningExcep
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.*;
 
 @Tag(name = "Develop", description = "개발자 테스트용 API")
 @Slf4j
@@ -49,6 +52,7 @@ public class DevelopController {
     private final RedisService redisService;
 
     private final AvatarRepository avatarRepository;
+    private final DeathCauseRepository deathCauseRepository;
 
     @Operation(summary = "아바타 체력 변화", description = "ALIVE 상태의 전체 아바타에 로직 실행")
     @ApiResponses({
@@ -118,7 +122,7 @@ public class DevelopController {
         log.debug("[PUT] hp method {}");
 
         String googleId = userService.addUser(SignUpReqDto.builder()
-                .googleId("gunpang")
+                .googleId(new RandomString(8).nextString())
                         .birthYear(1996)
                         .email("pang@google.com")
                         .height(180)
@@ -147,7 +151,7 @@ public class DevelopController {
         log.debug("[PUT] hp method {}");
 
         String googleId = userService.addUser(SignUpReqDto.builder()
-                .googleId("gunpang")
+                .googleId(new RandomString(8).nextString())
                 .birthYear(1996)
                 .email("pang@google.com")
                 .height(180)
@@ -158,13 +162,39 @@ public class DevelopController {
 
         avatarService.addWithBefore(userId, new AvatarAddReqDto("AVATAR_CAT", "팡이"), n);
 
-        Long avatarId = avatarRepository.getCurIdByUserId(userId).get();
-
         goalService.addGoal(userId, new GoalReqDto(11, 30, 6,30, 127, 30));
 
         LogInResDto logInResDto = jwtService.createTokens(googleId);
         redisService.setTokens(logInResDto);
 
         return ResponseEntity.ok().body(logInResDto);
+    }
+
+    @Operation(summary = "그 달에 더미 데이터 넣기", description = "그 달에 데미지 데이터를 랜덤 생성한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "요청 성공")
+            , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
+    })
+    @PostMapping("/dummyDamage")
+    public ResponseEntity<?> monthDummyDamageData(@RequestHeader("Authorization") String token, @RequestParam int year, @RequestParam int month){
+        log.debug("[PUT] hp method {}");
+
+        Long userId = userService.getIdByToken(token).getId();
+
+        Long avatarId = avatarRepository.getCurIdByUserId(userId).get();
+        Avatar avatar = avatarRepository.findById(avatarId).get();
+
+        List<DeathCause> deathCauses = new ArrayList<>();
+
+        // 랜덤 생성
+        for(LocalDate date = LocalDate.of(year, month, 1); date.getMonthValue() == month; date = date.plusDays(1)){
+            int cnt = new Random().nextInt(4);
+            for(int i = 0; i < cnt; i++){
+                deathCauses.add(DeathCause.builder().cause(Cause.values()[i]).date(date).avatar(avatar).build());
+            }
+        }
+        deathCauseRepository.saveAll(deathCauses);
+
+        return ResponseEntity.ok().build();
     }
 }
