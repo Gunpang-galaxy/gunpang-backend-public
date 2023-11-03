@@ -7,8 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RecordNotificationReqDto {
-    @NonNull
-    private long userId;
+
     @NonNull
     private String token;
 }
