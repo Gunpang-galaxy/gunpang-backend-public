@@ -44,9 +44,9 @@ public class GoalServiceImpl implements GoalService{
     }
 
     @Override
-    public GoalResDto getGoal(AvatarIdReqDto avatarIdReqDto) {
-        Goal goal = goalRepository.findByAvatar_Id(avatarIdReqDto.getAvatarId()).orElseThrow(
-                () -> new GoalNotFoundException(avatarIdReqDto.getAvatarId())
+    public GoalResDto getGoal(Long avatarId) {
+        Goal goal = goalRepository.findByAvatar_Id(avatarId).orElseThrow(
+                () -> new GoalNotFoundException(avatarId)
         );
 
         return GoalResDto.builder()
