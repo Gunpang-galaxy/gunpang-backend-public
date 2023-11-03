@@ -13,4 +13,6 @@ public interface UserService {
     UserIdResDto getIdByGoogleId(String googleId);
 
     UserIdResDto getIdByToken(String accessToken);
+
+    UserInfoResDto getUserInfo(long userId);
 }

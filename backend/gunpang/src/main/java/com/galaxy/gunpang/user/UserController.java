@@ -1,5 +1,6 @@
 package com.galaxy.gunpang.user;
 
+import com.galaxy.gunpang.notification.NotificationController;
 import com.galaxy.gunpang.user.exception.UserNotFoundException;
 import com.galaxy.gunpang.user.model.dto.*;
 import com.galaxy.gunpang.user.service.JwtService;
@@ -13,6 +14,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +29,8 @@ public class UserController {
     private final UserService userService;
     private final JwtService jwtService;
     private final RedisService redisService;
+
+    private static final Logger logger = LoggerFactory.getLogger(NotificationController.class);
 
     @Operation(summary = "사용자 로그인", description = "사용자 로그인을 합니다.")
     @ApiResponses({
@@ -120,6 +125,21 @@ public class UserController {
         AccessTokenResDto accessTokenResDto = redisService.updateTokens(accessToken);
 
         return ResponseEntity.ok().body(accessTokenResDto);
+    }
+
+    @Operation(summary = "유저 정보 조회", description = "사용자 정보를 받아옵니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = AccessTokenResDto.class)))
+            , @ApiResponse(responseCode = "400", description = "잘못된 필드, 값 요청")
+            , @ApiResponse(responseCode = "404", description = "존재하지 않는 사용자")
+            , @ApiResponse(responseCode = "500", description = "잘못된 JWT Token")
+    })
+    @GetMapping(value = "/info")
+    public ResponseEntity getUserInfo (@RequestHeader("Authorization") String token) throws Exception {
+        Long userId = userService.getIdByToken(token).getId();
+        logger.debug("controller");
+        UserInfoResDto userInfoResDto = userService.getUserInfo(userId);
+        return ResponseEntity.ok().body(userInfoResDto);
     }
 
 }
