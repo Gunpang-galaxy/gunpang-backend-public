@@ -85,14 +85,15 @@ public class AvatarController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = AvatarResDto.class)))
             , @ApiResponse(responseCode = "400", description = "잘못된 필드, 값 요청")
-            , @ApiResponse(responseCode = "401", description = "로그인되지 않은 사용자")
+            , @ApiResponse(responseCode = "401", description = "로그인되지 않은 사용자, 권한이 없는 사용자")
             , @ApiResponse(responseCode = "404", description = "현재 아바타가 존재하지 않음")
             , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
     })
-    @PostMapping
-    public ResponseEntity<?> get(@RequestHeader("Authorization") String token, @RequestBody AvatarIdReqDto avatarIdReqDto){
+    @GetMapping("/{avatarId}")
+    public ResponseEntity<?> get(@RequestHeader("Authorization") String token, @PathVariable Long avatarId){
         Long userId = userService.getIdByToken(token).getId();
-        Long avatarId = avatarIdReqDto.getAvatarId();
+
+        avatarService.authenticate(avatarId, userId);
 
         log.debug("[POST] /avatar : get method, {}, {}", avatarId, userId);
 

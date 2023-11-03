@@ -1,6 +1,7 @@
 package com.galaxy.gunpang.avatar.service;
 
 import com.galaxy.gunpang.avatar.exception.AvatarAlreadyExistException;
+import com.galaxy.gunpang.avatar.exception.AvatarAuthenticationException;
 import com.galaxy.gunpang.avatar.exception.AvatarNotFoundException;
 import com.galaxy.gunpang.avatar.exception.DeathCauseNotFoundException;
 import com.galaxy.gunpang.avatar.model.Avatar;
@@ -25,7 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
@@ -193,5 +193,12 @@ public class AvatarServiceImpl implements AvatarService{
         }
 
         return avatarResDto;
+    }
+
+    @Override
+    public void authenticate(Long avatarId, Long userId) {
+        avatarRepository.findByIdAndUser_Id(avatarId, userId).orElseThrow(
+                () -> new AvatarAuthenticationException(avatarId, userId)
+        );
     }
 }

@@ -11,4 +11,6 @@ public interface AvatarService {
     public AvatarResDto getCurAvatarResDto(Long userId);
     public AvatarWatchResDto getCurAvatarWatchResDto(Long userId);
     public AvatarResDto getAvatarResDto(Long avatarId, Long userId);
+
+    void authenticate(Long avatarId, Long userId);
 }
