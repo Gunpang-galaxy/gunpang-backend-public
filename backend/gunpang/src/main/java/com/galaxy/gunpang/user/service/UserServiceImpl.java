@@ -1,11 +1,13 @@
 package com.galaxy.gunpang.user.service;
 
+import com.galaxy.gunpang.user.exception.UserNotFoundException;
 import com.galaxy.gunpang.user.model.User;
 import com.galaxy.gunpang.user.model.dto.*;
 import com.galaxy.gunpang.user.model.enums.Gender;
 import com.galaxy.gunpang.user.repository.UserRepository;
 import com.galaxy.gunpang.user.utils.JwtUtil;
 import com.galaxy.gunpang.user.utils.UserUtil;
+import com.google.firebase.auth.UserInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -82,5 +84,19 @@ public class UserServiceImpl implements UserService {
                 .id(userRepository.getIdByGoogleId(googleId))
                 .build();
     }
+
+    @Override
+    public UserInfoResDto getUserInfo(long userId) {
+        //이메일, 성별, 출생, 키 반환
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+
+        UserInfoResDto userInfoResDto = UserInfoResDto.builder().email(user.getEmail())
+                .gender(user.getGender())
+                .height(user.getHeight())
+                .birthYear(user.getBirthYear()).build();
+
+        return userInfoResDto;
+    }
+
 
 }
