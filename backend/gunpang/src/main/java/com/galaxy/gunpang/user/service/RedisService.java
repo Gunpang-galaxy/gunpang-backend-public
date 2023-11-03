@@ -11,6 +11,8 @@ public interface RedisService {
 
     String getTokens(String id);
 
+    void updateTokens(LogInResDto logInResDto);
+
     void updateTokens(String id, String tokens);
 
     AccessTokenResDto updateTokens(String accessToken);

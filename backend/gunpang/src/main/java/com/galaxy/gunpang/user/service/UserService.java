@@ -15,4 +15,6 @@ public interface UserService {
     UserIdResDto getIdByToken(String accessToken);
 
     UserInfoResDto getUserInfo(long userId);
+
+    UserExistenceResDto findUserByEmail(String email);
 }

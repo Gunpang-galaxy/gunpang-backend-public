@@ -31,7 +31,6 @@ public class RedisServiceImpl implements RedisService {
     public void setTokens(String id, String tokens) {
         ValueOperations<String, String> values = redisTemplate.opsForValue();
         values.set(id, tokens, Duration.ofDays(jwtUtil.getRefreshTokenValidTimeAsDay()));
-        log.info("Redis에 Access Token과 Refresh Token을 등록합니다. : " + tokens);
     }
 
     @Override
@@ -50,6 +49,18 @@ public class RedisServiceImpl implements RedisService {
         setTokens(id, tokens);
         log.info("Redis에 새로운 Access Token과 Refresh Token을 등록합니다. : " + tokens);
 
+    }
+
+    @Override
+    public void updateTokens(LogInResDto logInResDto) {
+        ValueOperations<String, String> values = redisTemplate.opsForValue();
+
+        String googleId = logInResDto.getGoogleId();
+        String tokens = logInResDto.getAccessToken() + "," + logInResDto.getRefreshToken();
+        values.getOperations().delete(googleId);
+        log.info("id가 " + googleId + "인 Token 정보를 삭제합니다.");
+        values.set(googleId, tokens, Duration.ofDays(jwtUtil.getRefreshTokenValidTimeAsDay()));
+        log.info("Redis에 Access Token과 Refresh Token을 등록합니다. : " + tokens);
     }
 
     @Override

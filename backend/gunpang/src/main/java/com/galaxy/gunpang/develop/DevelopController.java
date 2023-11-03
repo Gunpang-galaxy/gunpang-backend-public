@@ -3,7 +3,6 @@ package com.galaxy.gunpang.develop;
 import com.galaxy.gunpang.avatar.model.Avatar;
 import com.galaxy.gunpang.avatar.model.DeathCause;
 import com.galaxy.gunpang.avatar.model.dto.AvatarAddReqDto;
-import com.galaxy.gunpang.avatar.model.dto.AvatarResDto;
 import com.galaxy.gunpang.avatar.model.enums.Cause;
 import com.galaxy.gunpang.avatar.repository.AvatarRepository;
 import com.galaxy.gunpang.avatar.repository.DeathCauseRepository;
@@ -121,12 +120,14 @@ public class DevelopController {
     public ResponseEntity<?> data(){
         log.debug("[PUT] hp method {}");
 
+        String randomString = new RandomString(8).nextString();
+
         String googleId = userService.addUser(SignUpReqDto.builder()
-                .googleId(new RandomString(8).nextString())
-                        .birthYear(1996)
-                        .email("pang@google.com")
-                        .height(180)
-                        .gender("MALE")
+                .googleId(randomString)
+                .birthYear(1996)
+                .email("pang" + randomString + "@google.com")
+                .height(180)
+                .gender("MALE")
                 .build()).getGoogleId();
 
         Long userId = userService.getIdByGoogleId(googleId).getId();
@@ -136,7 +137,7 @@ public class DevelopController {
         goalService.addGoal(userId, new GoalReqDto(11, 30, 6,30, 127, 30));
 
         LogInResDto logInResDto = jwtService.createTokens(googleId);
-        redisService.setTokens(logInResDto);
+        redisService.updateTokens(logInResDto);
 
         return ResponseEntity.ok().body(logInResDto);
     }
@@ -150,10 +151,12 @@ public class DevelopController {
     public ResponseEntity<?> nData(@RequestParam int n){
         log.debug("[PUT] hp method {}");
 
+        String randomString = new RandomString(8).nextString();
+
         String googleId = userService.addUser(SignUpReqDto.builder()
-                .googleId(new RandomString(8).nextString())
+                .googleId(randomString)
                 .birthYear(1996)
-                .email("pang@google.com")
+                .email("pang" + randomString + "@google.com")
                 .height(180)
                 .gender("MALE")
                 .build()).getGoogleId();
@@ -165,7 +168,7 @@ public class DevelopController {
         goalService.addGoal(userId, new GoalReqDto(11, 30, 6,30, 127, 30));
 
         LogInResDto logInResDto = jwtService.createTokens(googleId);
-        redisService.setTokens(logInResDto);
+        redisService.updateTokens(logInResDto);
 
         return ResponseEntity.ok().body(logInResDto);
     }
