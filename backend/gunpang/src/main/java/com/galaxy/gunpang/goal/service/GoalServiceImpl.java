@@ -5,6 +5,7 @@ import com.galaxy.gunpang.avatar.model.Avatar;
 import com.galaxy.gunpang.avatar.model.dto.AvatarIdReqDto;
 import com.galaxy.gunpang.avatar.repository.AvatarRepository;
 import com.galaxy.gunpang.avatar.repository.DeathCauseRepository;
+import com.galaxy.gunpang.common.model.enums.InitCode;
 import com.galaxy.gunpang.goal.exception.GoalNotFoundException;
 import com.galaxy.gunpang.goal.model.Goal;
 import com.galaxy.gunpang.goal.model.dto.CalendarResDto;
@@ -28,11 +29,11 @@ public class GoalServiceImpl implements GoalService{
     @Override
     public void addGoal(Long userId, GoalReqDto goalReqDto) {
         Long avatarId = avatarRepository.getCurIdByUserId(userId).orElseThrow(
-                () -> new AvatarNotFoundException(userId)
+                () -> new AvatarNotFoundException(InitCode.AVATAR_NOT_CREATED)
         );
 
         Avatar avatar = avatarRepository.findById(avatarId).orElseThrow(
-                ()-> new AvatarNotFoundException(avatarId)
+                AvatarNotFoundException::new
         );
         Goal goal = Goal.builder().avatar(avatar)
                 .exerciseDay((byte)goalReqDto.getExerciseDay())
@@ -46,7 +47,7 @@ public class GoalServiceImpl implements GoalService{
     @Override
     public GoalResDto getGoal(Long avatarId) {
         Goal goal = goalRepository.findByAvatar_Id(avatarId).orElseThrow(
-                () -> new GoalNotFoundException(avatarId)
+                GoalNotFoundException::new
         );
 
         return GoalResDto.builder()

@@ -3,7 +3,6 @@ package com.galaxy.gunpang.avatar.service;
 import com.galaxy.gunpang.avatar.exception.AvatarAlreadyExistException;
 import com.galaxy.gunpang.avatar.exception.AvatarAuthenticationException;
 import com.galaxy.gunpang.avatar.exception.AvatarNotFoundException;
-import com.galaxy.gunpang.avatar.exception.DeathCauseNotFoundException;
 import com.galaxy.gunpang.avatar.model.Avatar;
 import com.galaxy.gunpang.avatar.model.DeathCause;
 import com.galaxy.gunpang.avatar.model.dto.*;
@@ -11,9 +10,8 @@ import com.galaxy.gunpang.avatar.model.enums.Stage;
 import com.galaxy.gunpang.avatar.model.enums.Status;
 import com.galaxy.gunpang.avatar.repository.AvatarRepository;
 import com.galaxy.gunpang.avatar.repository.DeathCauseRepository;
-import com.galaxy.gunpang.dailyRecord.model.DailyRecord;
+import com.galaxy.gunpang.common.model.enums.InitCode;
 import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordResDto;
-import com.galaxy.gunpang.dailyRecord.repository.DailyRecordRepository;
 import com.galaxy.gunpang.dailyRecord.service.DailyRecordService;
 import com.galaxy.gunpang.goal.exception.GoalNotFoundException;
 import com.galaxy.gunpang.goal.model.Goal;
@@ -33,9 +31,7 @@ import java.time.LocalDate;
 public class AvatarServiceImpl implements AvatarService{
 
     private final AvatarRepository avatarRepository;
-    private final DailyRecordRepository dailyRecordRepository;
     private final DailyRecordService dailyRecordService;
-//    private final AvatarTypeRepository avatarTypeRepository;
     private final GoalRepository goalRepository;
     private final DeathCauseRepository deathCauseRepository;
     private final UserRepository userRepository;
@@ -43,7 +39,7 @@ public class AvatarServiceImpl implements AvatarService{
     @Override
     public void addRandomAvatar(Long userId, AvatarAddReqDto avatarAddReqDto) {
         User user = userRepository.getReferenceById(userId);
-        if(avatarRepository.existsByUser_IdAndStatus(userId, Status.ALIVE)) throw new AvatarAlreadyExistException(userId);
+        if(avatarRepository.existsByUser_IdAndStatus(userId, Status.ALIVE)) throw new AvatarAlreadyExistException();
         Avatar avatar = Avatar.builder()
                 .avatarType(avatarAddReqDto.getAvatarType())
                 .user(user)
@@ -54,17 +50,12 @@ public class AvatarServiceImpl implements AvatarService{
                 .startedDate(LocalDate.now())
                 .build();
         avatarRepository.save(avatar);
-//        return AvatarGatchaResDto.builder()
-//                .avatarId(savedAvatar.getId())
-//                .defaultName(savedAvatar.getName())
-//                .defaultImg(savedAvatar.getAvatarType().getDefaultImg())
-//                .build();
     }
 
     @Override
     public void addWithBefore(Long userId, AvatarAddReqDto avatarAddReqDto, int n) {
         User user = userRepository.getReferenceById(userId);
-        if(avatarRepository.existsByUser_IdAndStatus(userId, Status.ALIVE)) throw new AvatarAlreadyExistException(userId);
+        if(avatarRepository.existsByUser_IdAndStatus(userId, Status.ALIVE)) throw new AvatarAlreadyExistException();
         Avatar avatar = Avatar.builder()
                 .avatarType(avatarAddReqDto.getAvatarType())
                 .user(user)
@@ -77,19 +68,10 @@ public class AvatarServiceImpl implements AvatarService{
         avatarRepository.save(avatar);
     }
 
-//    @Override
-//    public void namingAvatar(AvatarAddReqDto avatarAddReqDto) {
-//        Avatar avatar = avatarRepository.findById(avatarAddReqDto.getAvatarId()).orElseThrow(
-//                () -> new AvatarNotFoundException(avatarAddReqDto.getAvatarId())
-//        );
-//        avatar.setName(avatarAddReqDto.getName());
-//        avatarRepository.save(avatar);
-//    }
-
     @Override
     public AvatarResDto getCurAvatarResDto(Long userId) {
         Long curAvatarId = avatarRepository.getCurIdByUserId(userId).orElseThrow(
-                () -> new AvatarNotFoundException(userId)
+                () -> new AvatarNotFoundException(InitCode.AVATAR_NOT_CREATED)
         );
 
         return getAvatarResDto(curAvatarId, userId);
@@ -98,9 +80,11 @@ public class AvatarServiceImpl implements AvatarService{
     @Override
     public AvatarWatchResDto getCurAvatarWatchResDto(Long userId) {
         Long curAvatarId = avatarRepository.getCurIdByUserId(userId).orElseThrow(
-                () -> new AvatarNotFoundException(userId)
+                () -> new AvatarNotFoundException(InitCode.AVATAR_NOT_CREATED)
         );
-        Avatar avatar = avatarRepository.findById(curAvatarId).get();
+        Avatar avatar = avatarRepository.findById(curAvatarId).orElseThrow(
+                AvatarNotFoundException::new
+        );
         return AvatarWatchResDto.builder().avatarType(avatar.getAvatarType())
                 .healthPoint(avatar.getHealthPoint()/10f)
                 .status(avatar.getStatus())
@@ -111,12 +95,12 @@ public class AvatarServiceImpl implements AvatarService{
     @Override
     public AvatarResDto getAvatarResDto(Long avatarId, Long userId) {
         Avatar avatar = avatarRepository.findByIdAndUser_Id(avatarId, userId).orElseThrow(
-                () -> new AvatarNotFoundException(userId)
+                AvatarNotFoundException::new
         );
         Long prev = avatarRepository.getPrevIdByIdAndUserId(avatarId, userId).orElse(-1L);
         Long next = avatarRepository.getNextIdByIdAndUserId(avatarId, userId).orElse(-1L);
         Goal goal = goalRepository.findByAvatar_Id(avatar.getId()).orElseThrow(
-                () -> new GoalNotFoundException(avatar.getId())
+                () -> new GoalNotFoundException(InitCode.NO_GOAL_SET)
         );
         GoalResDto goalResDto = GoalResDto.builder()
                 .exerciseDay(goal.getExerciseDay())
@@ -140,25 +124,13 @@ public class AvatarServiceImpl implements AvatarService{
 
         switch (avatar.getStatus()){
             case ALIVE -> {
-//                DailyRecord dailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(userId, LocalDate.now()).orElse(null);
                 CheckDailyRecordResDto checkDailyRecordResDto = dailyRecordService.checkDailyRecord(userId, LocalDate.now().toString());
                 avatarResDto.setContents(checkDailyRecordResDto);
-//                if(dailyRecord != null) {
-//                    avatarResDto.setContents(CheckDailyRecordResDto.builder()
-//                            .exerciseTime(dailyRecord.getExerciseAccTime().toString())
-//                            .awakeAt(dailyRecord.getAwakeAt().toString())
-//                            .sleepAt(dailyRecord.getSleepAt().toString())
-//                            .breakfastFoodType(dailyRecord.getBreakfastFoodType())
-//                            .lunchFoodType(dailyRecord.getLunchFoodType())
-//                            .dinnerFoodType(dailyRecord.getDinnerFoodType())
-//                            .build());
-//                }else{
-//                    avatarResDto.setContents(new CheckDailyRecordResDto());
-//                }
             }
             case DEAD -> {
-                DeathCause deathCause = deathCauseRepository.findFirstByAvatar_IdOrderByIdDesc(avatar.getId()).orElseThrow(
-                        ()-> new DeathCauseNotFoundException(avatar.getId())
+                // 사망 원인이 없는 예외 발생 시 null 값을 가지는 DeathCause를 보내준다.
+                DeathCause deathCause = deathCauseRepository.findFirstByAvatar_IdOrderByIdDesc(avatar.getId()).orElse(
+                        DeathCause.builder().build()
                 );
 
                 avatarResDto.setContents(AvatarDeadResDto.builder()
@@ -180,7 +152,7 @@ public class AvatarServiceImpl implements AvatarService{
                         .sleepSuccessCnt(28)
                         .build();
 
-                deathCauseRepository.findAllByAvatar_Id(avatar.getId()).stream()
+                deathCauseRepository.findAllByAvatar_Id(avatar.getId())
                                 .forEach(deathCause -> {
                                     switch (deathCause.getCause()){
                                         case EXERCISE_LACK -> avatarGradResDto.setExerciseSuccessCnt(avatarGradResDto.getExerciseSuccessCnt() - 1);
@@ -198,7 +170,7 @@ public class AvatarServiceImpl implements AvatarService{
     @Override
     public void authenticate(Long avatarId, Long userId) {
         avatarRepository.findByIdAndUser_Id(avatarId, userId).orElseThrow(
-                () -> new AvatarAuthenticationException(avatarId, userId)
+                AvatarAuthenticationException::new
         );
     }
 }
