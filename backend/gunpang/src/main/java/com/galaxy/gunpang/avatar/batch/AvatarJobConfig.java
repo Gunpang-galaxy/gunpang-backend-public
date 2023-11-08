@@ -77,7 +77,6 @@ public class AvatarJobConfig {
                 .repository(avatarRepository)
                 .methodName("findByStatus")
                 .pageSize(CHUNK_SIZE)
-                .maxItemCount(CHUNK_SIZE)
                 .arguments(Arrays.asList(Status.ALIVE))
                 .sorts(Collections.singletonMap("id",Sort.Direction.ASC))
                 .name("avatarDamageReader")
@@ -91,7 +90,6 @@ public class AvatarJobConfig {
                 .repository(avatarRepository)
                 .methodName("getLevelUpAvatars")
                 .pageSize(CHUNK_SIZE)
-                .maxItemCount(CHUNK_SIZE)
                 .sorts(Collections.singletonMap("id", Sort.Direction.ASC))
                 .name("avatarLevelUpReader")
                 .build();
