@@ -26,7 +26,7 @@ public class AvatarController {
 
     @Operation(summary = "랜덤 아바타 등록", description = "랜덤 생성한 아바타를 등록한다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = AvatarGatchaResDto.class)))
+            @ApiResponse(responseCode = "200", description = "요청 성공")
             , @ApiResponse(responseCode = "400", description = "잘못된 필드, 값 요청")
             , @ApiResponse(responseCode = "401", description = "로그인되지 않은 사용자")
             , @ApiResponse(responseCode = "409", description = "이미 키우고 있는 아바타가 존재")

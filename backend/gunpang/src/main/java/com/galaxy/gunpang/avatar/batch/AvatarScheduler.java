@@ -28,7 +28,7 @@ public class AvatarScheduler {
     private final Job damageJob;
     private final Job levelUpJob;
 
-    @Scheduled(cron = "0 */5 * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void run(){
         Map<String, JobParameter> confMap = new HashMap<>();
         confMap.put("time", new JobParameter(System.currentTimeMillis()));
