@@ -23,15 +23,15 @@ public class AvatarRepositoryImpl implements AvatarRepositoryCustom{
     @Override
     public Optional<Long> getPrevIdByIdAndUserId(Long avatarId, Long userId) {
         return Optional.ofNullable(queryFactory.select(avatar.id).from(avatar)
-                .where(avatar.user.id.eq(userId).and(avatar.id.gt(avatarId)))
-                .orderBy(avatar.id.desc())
+                .where(avatar.user.id.eq(userId).and(avatar.id.lt(avatarId)))
                 .fetchFirst());
     }
 
     @Override
     public Optional<Long> getNextIdByIdAndUserId(Long avatarId, Long userId) {
         return Optional.ofNullable(queryFactory.select(avatar.id).from(avatar)
-                .where(avatar.user.id.eq(userId).and(avatar.id.lt(avatarId)))
+                .where(avatar.user.id.eq(userId).and(avatar.id.gt(avatarId)))
+                .orderBy(avatar.id.desc())
                 .fetchFirst());
     }
 
