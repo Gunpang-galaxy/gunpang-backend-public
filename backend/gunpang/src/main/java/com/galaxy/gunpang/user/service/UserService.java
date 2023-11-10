@@ -17,4 +17,7 @@ public interface UserService {
     UserInfoResDto getUserInfo(long userId);
 
     UserExistenceResDto findUserByEmail(String email);
+
+    void updateUserToDeleted(GoogleIdResDto googleIdResDto);
+
 }

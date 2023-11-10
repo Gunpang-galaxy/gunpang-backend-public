@@ -94,6 +94,26 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "사용자 회원탈퇴", description = "사용자 회원탈퇴를 합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content)
+            , @ApiResponse(responseCode = "400", description = "잘못된 필드, 값 요청")
+            , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
+    })
+    @PutMapping("/signout")
+    public ResponseEntity<?> signOut(@RequestHeader("Authorization") String accessToken) {
+        log.debug("[PUT] signOut method {}", accessToken);
+
+        // googleId 추출
+        GoogleIdResDto googleIdResDto = jwtService.getGoogleId(accessToken);
+        // redis에서 토큰 제거 (로그아웃)
+        redisService.deleteTokens(googleIdResDto);
+        // 회원탈퇴
+        userService.updateUserToDeleted(googleIdResDto);
+
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "JWT 토큰을 사용하여 UserId 반환", description = "JWT 토큰을 사용하여 UserId를 반환합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = UserIdResDto.class)))

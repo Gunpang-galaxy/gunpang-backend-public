@@ -104,5 +104,11 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    @Override
+    public void updateUserToDeleted(GoogleIdResDto googleIdResDto) {
+        User user = userRepository.findByGoogleId(googleIdResDto.getGoogleId());
+        user.updateUserToDeleted();
+        userRepository.save(user);
+    }
 
 }

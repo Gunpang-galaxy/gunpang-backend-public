@@ -35,10 +35,22 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "smallint", nullable = false)
     private int height;
 
+    @Column(columnDefinition = "tinyint", nullable = false)
+    private int isDeleted = 0;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<BodyComposition> bodyCompositions;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Avatar> avatars;
+
+    public void updateUserToDeleted() {
+        this.googleId = "deleted";
+        this.email = "deleted";
+        this.gender = Gender.NONE;
+        this.birthYear = 0;
+        this.height = 0;
+        this.isDeleted = 1;
+    }
 
 }
