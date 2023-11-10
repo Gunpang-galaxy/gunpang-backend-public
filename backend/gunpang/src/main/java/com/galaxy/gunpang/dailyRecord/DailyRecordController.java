@@ -82,10 +82,9 @@ public class DailyRecordController {
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping(value = "/records/food")
-    public ResponseEntity<?> recordFood(@RequestHeader("Authorization") String token, @RequestParam String foodType) throws Exception {
-        logger.debug("foodType : {}",foodType);
+    public ResponseEntity<?> recordFood(@RequestHeader("Authorization") String token, @RequestBody FoodType foodType) throws Exception {
         Long userId = userService.getIdByToken(token).getId();
-        dailyRecordService.recordFood(userId, FoodType.valueOf(foodType));
+        dailyRecordService.recordFood(userId, foodType);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
