@@ -33,6 +33,11 @@ public class NotificationService {
         return true;
     }
 
+    public String getDeviceTokenByUserId(long userId){
+        logger.debug("getDeviceTokenByUserId");
+        return notificationRepository.findTokenByUserId(userId).getToken();
+    }
+
     public void sendNotification(String targetToken, String title, String body) throws IOException {
 
         logger.debug("sendNotification");

@@ -44,6 +44,19 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Avatar> avatars;
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", googleId='" + googleId + '\'' +
+                ", email='" + email + '\'' +
+                ", gender=" + gender +
+                ", birthYear=" + birthYear +
+                ", height=" + height +
+                ", isDeleted=" + isDeleted +
+                '}';
+    }
+
     public void updateUserToDeleted() {
         this.googleId = "deleted";
         this.email = "deleted";
