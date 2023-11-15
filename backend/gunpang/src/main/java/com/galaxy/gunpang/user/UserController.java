@@ -48,7 +48,7 @@ public class UserController {
         // 3. 회원이면 로그인 + 토큰 발급
         if (userService.existsByGoogleId(googleId).isUser()) {
             LogInResDto logInResDto = jwtService.createTokens(googleId);
-            redisService.updateTokens(logInResDto);
+            redisService.updateToken(logInResDto);
             return ResponseEntity.ok().body(logInResDto);
         } else {
             throw new UserNotFoundException(googleId);
@@ -89,7 +89,7 @@ public class UserController {
         // googleId 추출
         GoogleIdResDto googleIdResDto = jwtService.getGoogleId(accessToken);
         // redis에서 토큰 제거
-        redisService.deleteTokens(googleIdResDto);
+        redisService.deleteToken(googleIdResDto);
 
         return ResponseEntity.ok().build();
     }
@@ -107,7 +107,7 @@ public class UserController {
         // googleId 추출
         GoogleIdResDto googleIdResDto = jwtService.getGoogleId(accessToken);
         // redis에서 토큰 제거 (로그아웃)
-        redisService.deleteTokens(googleIdResDto);
+        redisService.deleteToken(googleIdResDto);
         // 회원탈퇴
         userService.updateUserToDeleted(googleIdResDto);
 
@@ -168,7 +168,7 @@ public class UserController {
     public ResponseEntity<?> recreateToken(@RequestParam("JWTToken") String accessToken){
         log.debug("[GET] recreateToken method {}", accessToken);
 
-        AccessTokenResDto accessTokenResDto = redisService.updateTokens(accessToken);
+        AccessTokenResDto accessTokenResDto = redisService.updateToken(accessToken);
 
         return ResponseEntity.ok().body(accessTokenResDto);
     }

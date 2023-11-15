@@ -6,20 +6,20 @@ import com.galaxy.gunpang.user.model.dto.LogInResDto;
 
 public interface RedisService {
 
-    void setTokens(LogInResDto logInResDto);
+    void setToken(LogInResDto logInResDto);
 
-    void setTokens(String id, String tokens);
+    void setToken(String id, String token);
 
-    String getTokens(String id);
+    String getToken(String id);
 
-    void updateTokens(LogInResDto logInResDto);
+    void updateToken(LogInResDto logInResDto);
 
-    void updateTokens(String id, String tokens);
+    void updateToken(String id, String token);
 
-    AccessTokenResDto updateTokens(String accessToken);
+    AccessTokenResDto updateToken(String accessToken);
 
-    void deleteTokens(String id);
+    void deleteToken(String id);
 
-    void deleteTokens(GoogleIdResDto googleIdResDto);
+    void deleteToken(GoogleIdResDto googleIdResDto);
 
 }

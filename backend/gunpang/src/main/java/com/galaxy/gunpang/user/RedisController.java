@@ -17,17 +17,17 @@ public class RedisController {
 
     @PostMapping
     public void redisCreateTest(@RequestParam String id, @RequestParam String tokens) {
-        redisService.setTokens(id, tokens);
+        redisService.setToken(id, tokens);
     }
 
     @GetMapping
     public String redisReadTest(@RequestParam String id) {
-        return redisService.getTokens(id);
+        return redisService.getToken(id);
     }
 
     @PutMapping
-    public void redisUpdateTest(@RequestParam String id, @RequestParam String tokens) {
-        redisService.updateTokens(id, tokens);
+    public void redisUpdateTest(@RequestParam String id, @RequestParam String token) {
+        redisService.updateToken(id, token);
     }
 
 }
