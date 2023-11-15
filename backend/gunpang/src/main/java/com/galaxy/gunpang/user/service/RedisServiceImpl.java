@@ -21,59 +21,59 @@ public class RedisServiceImpl implements RedisService {
     private final JwtUtil jwtUtil;
 
     @Override
-    public void setTokens(String id, String tokens) {
+    public void setToken(String id, String token) {
         ValueOperations<String, String> values = redisTemplate.opsForValue();
-        log.info("Redis에 Access Token과 Refresh Token을 등록합니다. : " + tokens);
-        values.set(id, tokens, Duration.ofDays(jwtUtil.getRefreshTokenValidTimeAsDay()));
+        log.info("Redis에 Refresh Token을 등록합니다. : " + token);
+        values.set(id, token, Duration.ofDays(jwtUtil.getRefreshTokenValidTimeAsDay()));
     }
 
     @Override
-    public void setTokens(LogInResDto logInResDto) {
-        String tokens = logInResDto.getAccessToken() + "," + logInResDto.getRefreshToken();
-        setTokens(logInResDto.getGoogleId(), tokens);
+    public void setToken(LogInResDto logInResDto) {
+        String token = logInResDto.getRefreshToken();
+        setToken(logInResDto.getGoogleId(), token);
     }
 
     @Override
-    public String getTokens(String id) {
+    public String getToken(String id) {
         ValueOperations<String, String> values = redisTemplate.opsForValue();
         return values.get(id);
     }
 
     @Override
-    public void deleteTokens(String id) {
+    public void deleteToken(String id) {
         ValueOperations<String, String> values = redisTemplate.opsForValue();
         log.info("id가 " + id + "인 Token 정보를 삭제합니다.");
         values.getOperations().delete(id);
     }
 
     @Override
-    public void deleteTokens(GoogleIdResDto googleIdResDto) {
-        deleteTokens(googleIdResDto.getGoogleId());
+    public void deleteToken(GoogleIdResDto googleIdResDto) {
+        deleteToken(googleIdResDto.getGoogleId());
     }
 
     @Override
-    public void updateTokens(String id, String tokens) {
-        deleteTokens(id);
-        setTokens(id, tokens);
+    public void updateToken(String id, String token) {
+        deleteToken(id);
+        setToken(id, token);
     }
 
     @Override
-    public void updateTokens(LogInResDto logInResDto) {
+    public void updateToken(LogInResDto logInResDto) {
         String googleId = logInResDto.getGoogleId();
-        String tokens = logInResDto.getAccessToken() + "," + logInResDto.getRefreshToken();
-        updateTokens(googleId, tokens);
+        String token = logInResDto.getRefreshToken();
+        updateToken(googleId, token);
     }
 
     @Override
-    public AccessTokenResDto updateTokens(String accessToken) {
+    public AccessTokenResDto updateToken(String accessToken) {
         ValueOperations<String, String> values = redisTemplate.opsForValue();
 
         String googleId = jwtUtil.getGoogleIdFromToken(accessToken);
-        String refreshToken = (getTokens(googleId)).split(",")[1];
+        String refreshToken = getToken(googleId);
         String newAccessToken = jwtUtil.recreateAccessToken(refreshToken);
-        String tokens = newAccessToken + "," + refreshToken;
+        String token = refreshToken;
 
-        updateTokens(googleId, tokens);
+        updateToken(googleId, token);
 
         return AccessTokenResDto.builder()
                 .accessToken(newAccessToken)

@@ -137,7 +137,7 @@ public class DevelopController {
         goalService.addGoal(userId, new GoalReqDto(11, 30, 6,30, 127, 30));
 
         LogInResDto logInResDto = jwtService.createTokens(googleId);
-        redisService.updateTokens(logInResDto);
+        redisService.updateToken(logInResDto);
 
         return ResponseEntity.ok().body(logInResDto);
     }
@@ -168,7 +168,7 @@ public class DevelopController {
         goalService.addGoal(userId, new GoalReqDto(11, 30, 6,30, 127, 30));
 
         LogInResDto logInResDto = jwtService.createTokens(googleId);
-        redisService.updateTokens(logInResDto);
+        redisService.updateToken(logInResDto);
 
         return ResponseEntity.ok().body(logInResDto);
     }
