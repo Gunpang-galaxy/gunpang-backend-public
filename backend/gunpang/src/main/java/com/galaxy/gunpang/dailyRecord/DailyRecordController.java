@@ -52,7 +52,7 @@ public class DailyRecordController {
     @PostMapping(value = "/records/sleep")
     public ResponseEntity<?> recordSleep(@RequestHeader("Authorization") String token, @RequestBody SleepRecordReqDto sleepRecordReqDto) throws Exception {
         Long userId = userService.getIdByToken(token).getId();
-        dailyRecordService.recordSleep(userId, sleepRecordReqDto.getSleepAt(), sleepRecordReqDto.getAwakeAt());
+        dailyRecordService.recordSleep(userId, sleepRecordReqDto);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

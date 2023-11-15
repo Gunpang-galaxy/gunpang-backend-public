@@ -2,15 +2,14 @@ package com.galaxy.gunpang.dailyRecord.model;
 
 import com.galaxy.gunpang.common.model.BaseEntity;
 import com.galaxy.gunpang.dailyRecord.model.enums.FoodType;
+import java.time.LocalDateTime;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Builder
@@ -58,14 +57,6 @@ public class DailyRecord extends BaseEntity {
         this.exerciseAccTime = exerciseAccTime;
     }
 
-    public void setSleepAt(LocalDateTime sleepAt) {
-        this.sleepAt = sleepAt;
-    }
-
-    public void setAwakeAt(LocalDateTime awakeAt) {
-        this.awakeAt = awakeAt;
-    }
-
     public void setBreakfastFoodType(FoodType breakfastFoodType) {
         this.breakfastFoodType = breakfastFoodType;
     }
@@ -81,4 +72,10 @@ public class DailyRecord extends BaseEntity {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
+
+    public void setSleepRecord(LocalDateTime sleepAt, LocalDateTime awakeAt) {
+        this.sleepAt = sleepAt;
+        this.awakeAt = awakeAt;
+    }
+
 }

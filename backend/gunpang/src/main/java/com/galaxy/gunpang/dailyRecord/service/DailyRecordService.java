@@ -5,17 +5,15 @@ import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordForWatchResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordOnCalendarResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.SleepRecordApiReqDto;
+import com.galaxy.gunpang.dailyRecord.model.dto.SleepRecordReqDto;
 import com.galaxy.gunpang.dailyRecord.model.enums.FoodType;
-import com.galaxy.gunpang.dailyRecord.model.enums.TimeToEat;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 
 public interface DailyRecordService {
 
     void createRecord(Long userId);
-    public void recordSleep(Long userId, LocalDateTime sleepAt, LocalDateTime awakeAt);
+    void recordSleep(Long userId, SleepRecordReqDto sleepRecordReqDto);
 
     void recordFood(Long userId, FoodType foodType);
 
