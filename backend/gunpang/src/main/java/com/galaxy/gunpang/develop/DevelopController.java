@@ -15,6 +15,8 @@ import com.galaxy.gunpang.user.service.JwtService;
 import com.galaxy.gunpang.user.service.RedisService;
 import com.galaxy.gunpang.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -113,7 +115,7 @@ public class DevelopController {
 
     @Operation(summary = "테스트 데이터 넣기", description = "유저, 아바타, 목표 생성")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "요청 성공")
+            @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = LogInResDto.class)))
             , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
     })
     @PostMapping("/test-data")
@@ -144,7 +146,7 @@ public class DevelopController {
 
     @Operation(summary = "테스트 n일전 데이터 넣기", description = "유저, 아바타, 목표 생성")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "요청 성공")
+            @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = LogInResDto.class)))
             , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
     })
     @PostMapping("/test-n-data")

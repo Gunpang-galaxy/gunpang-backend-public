@@ -17,13 +17,18 @@ import java.util.List;
 @Component
 public class AvatarLevelProcessor implements ItemProcessor<Avatar,Avatar> {
     @Override
-    public Avatar process(Avatar avatar) throws Exception {
+    public Avatar process(Avatar avatar) {
+        if(avatar.getStatus() == Status.GRADUATED) return avatar;
         Stage[] stages = Stage.values();
         int level = avatar.getStage().ordinal();
+        log.debug("stage length = {}", stages.length);
+        log.debug("level = {}", level);
         if(level < stages.length - 1) {
+            log.debug("id = {} is level up", avatar.getId());
             avatar.setStage(stages[level + 1]);
             avatar.setHealthPoint((byte) 10);
         } else if(level == stages.length - 1){
+            log.debug("id = {} is graduate", avatar.getId());
             avatar.setStatus(Status.GRADUATED);
             avatar.setFinishedDate(LocalDate.now());
             avatar.setHealthPoint((byte) 10);

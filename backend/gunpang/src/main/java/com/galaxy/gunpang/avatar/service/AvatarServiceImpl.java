@@ -61,7 +61,7 @@ public class AvatarServiceImpl implements AvatarService{
                 .user(user)
                 .name(avatarAddReqDto.getName())
                 .healthPoint((byte) 10)
-                .stage(Stage.LAND)
+                .stage(Stage.SEA)
                 .status(Status.ALIVE)
                 .startedDate(LocalDate.now().minusDays(n))
                 .build();

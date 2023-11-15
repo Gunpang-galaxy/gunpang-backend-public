@@ -14,16 +14,19 @@ public class AvatarMultiProcessor implements ItemProcessor<Avatar,Avatar> {
     private final AvatarProcessor avatarProcessor;
 
     @Override
-    public Avatar process(Avatar avatar) throws Exception {
+    public Avatar process(Avatar avatar){
+        log.debug("avatarId : " + avatar.getId());
         avatarProcessor.init(avatar);
+        log.debug("init 완료");
 
-//        avatar = avatarProcessor.checkDailyRecord(avatar);
-//        if(avatar.getStatus() == Status.DEAD || !avatarProcessor.necessaryPresent()) return avatar;
         avatar = avatarProcessor.exerciseProcess(avatar);
+        log.debug("exercise 완료 | id = " + avatar.getId() + " | hp :  "+ avatar.getHealthPoint());
         if(avatar.getStatus() == Status.DEAD) return avatar;
         avatar = avatarProcessor.sleepProcess(avatar);
+        log.debug("sleep 완료 | id = "+ avatar.getId() + " | hp :  " + avatar.getHealthPoint());
         if(avatar.getStatus() == Status.DEAD) return avatar;
         avatar = avatarProcessor.foodProcess(avatar);
+        log.debug("food 완료 | id = "+ avatar.getId() + " | hp :  " + avatar.getHealthPoint());
 
         return avatar;
     }
