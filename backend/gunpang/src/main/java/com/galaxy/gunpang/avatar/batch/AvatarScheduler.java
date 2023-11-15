@@ -29,7 +29,7 @@ public class AvatarScheduler {
     private final Job levelUpJob;
 
     @Scheduled(cron = "0 0 0 * * *")
-    public void run(){
+    public void damage(){
         Map<String, JobParameter> confMap = new HashMap<>();
         confMap.put("time", new JobParameter(System.currentTimeMillis()));
 
@@ -37,6 +37,19 @@ public class AvatarScheduler {
 
         try{
             jobLauncher.run(damageJob, jobParameters);
+        } catch (JobInstanceAlreadyCompleteException | JobExecutionAlreadyRunningException |
+                 JobParametersInvalidException | JobRestartException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @Scheduled(cron = "0 0 0 * * *")
+    public void levelUp(){
+        Map<String, JobParameter> confMap = new HashMap<>();
+        confMap.put("time", new JobParameter(System.currentTimeMillis()));
+
+        JobParameters jobParameters = new JobParameters(confMap);
+
+        try{
             jobLauncher.run(levelUpJob, jobParameters);
         } catch (JobInstanceAlreadyCompleteException e) {
             throw new RuntimeException(e);
@@ -48,5 +61,4 @@ public class AvatarScheduler {
             throw new RuntimeException(e);
         }
     }
-
 }

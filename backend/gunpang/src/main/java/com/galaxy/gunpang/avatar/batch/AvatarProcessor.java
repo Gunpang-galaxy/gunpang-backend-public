@@ -36,10 +36,6 @@ public class AvatarProcessor {
         now = LocalDate.now().minusDays(1);
     }
 
-    public boolean necessaryPresent(){
-        return this.dailyRecord.isPresent() && this.goal.isPresent();
-    }
-
     public boolean checkDailyRecord(Avatar avatar, int damage, Cause cause){
         if(!this.goal.isPresent()) return false;
         if(!dailyRecord.isPresent() && this.goal.isPresent()){

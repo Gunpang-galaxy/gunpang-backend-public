@@ -5,6 +5,7 @@ import com.galaxy.gunpang.avatar.model.QAvatar;
 import com.galaxy.gunpang.avatar.model.enums.Status;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 import static com.galaxy.gunpang.avatar.model.QAvatar.avatar;
 
+@Slf4j
 @RequiredArgsConstructor
 public class AvatarRepositoryImpl implements AvatarRepositoryCustom{
     private final JPAQueryFactory queryFactory;
@@ -48,7 +50,7 @@ public class AvatarRepositoryImpl implements AvatarRepositoryCustom{
         LocalDate[] dates = new LocalDate[4];
         for(int i = 0; i < dates.length;) dates[i] = LocalDate.now().minusDays(7 * (++i));
         List<Avatar> avatars = queryFactory.selectFrom(avatar)
-                .where(avatar.status.eq(Status.ALIVE)
+                .where(avatar.status.ne(Status.DEAD)
                         .and(avatar.startedDate.eq(dates[0])
                                 .or(avatar.startedDate.eq(dates[1]))
                                 .or(avatar.startedDate.eq(dates[2]))
@@ -56,6 +58,8 @@ public class AvatarRepositoryImpl implements AvatarRepositoryCustom{
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+        log.debug("avatars : {}", avatars.size());
+
         return new PageImpl<>(avatars, pageable, avatars.size());
     }
 
