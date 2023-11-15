@@ -1,6 +1,5 @@
 package com.galaxy.gunpang.dailyRecord.service;
 
-import com.galaxy.gunpang.dailyRecord.exception.DailyRecordNotFoundException;
 import com.galaxy.gunpang.dailyRecord.exception.RecordDateNotTodayException;
 import com.galaxy.gunpang.dailyRecord.exception.FoodRecordTimeBadRequestException;
 import com.galaxy.gunpang.dailyRecord.model.DailyRecord;
@@ -8,12 +7,13 @@ import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordForWatchResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordOnCalendarResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.SleepRecordApiReqDto;
+import com.galaxy.gunpang.dailyRecord.model.dto.SleepRecordReqDto;
 import com.galaxy.gunpang.dailyRecord.model.enums.FoodType;
 import com.galaxy.gunpang.dailyRecord.repository.DailyRecordRepository;
 import com.galaxy.gunpang.exercise.model.Exercise;
 import com.galaxy.gunpang.exercise.repository.ExerciseRepository;
+import java.time.LocalTime;
 import lombok.RequiredArgsConstructor;
-import net.bytebuddy.asm.Advice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -106,14 +106,31 @@ public class DailyRecordServiceImpl implements DailyRecordService {
     }
 
     @Override
-    public void recordSleep(Long userId, LocalDateTime sleepAt, LocalDateTime awakeAt) {
-        //오늘 날짜에 맞는 하루 기록 가져오기
-        //하루 기록 수면 시각, 기상 시각 업데이트
+    public void recordSleep(Long userId, SleepRecordReqDto sleepRecordReqDto) {
+        // 1. 오늘 날짜에 맞는 하루 기록 가져오기
         LocalDate today = LocalDate.now();
         DailyRecord dailyRecord = returnDailyRecordOfDate(userId, today);
         logger.debug(dailyRecord.toString());
-        dailyRecord.setSleepAt(sleepAt);
-        dailyRecord.setAwakeAt(awakeAt);
+
+        // 2. 입력값 LocalTime으로 수정
+        LocalTime sleepStartTime = LocalTime.of(sleepRecordReqDto.getSleepStartHour(), sleepRecordReqDto.getSleepStartMinute());
+        LocalTime sleepEndTime = LocalTime.of(sleepRecordReqDto.getSleepEndHour(), sleepRecordReqDto.getSleepEndMinute());
+        logger.debug("기상 시간 : {}, 수면 시간 : {}", sleepStartTime, sleepEndTime);
+
+        // 3. LocalDateTime 형식으로 수면 시간 수정
+        LocalDateTime sleepStartAt = LocalDateTime.now();
+        sleepStartAt = sleepStartAt.with(sleepStartTime).with(today);
+        LocalDateTime sleepEndAt = LocalDateTime.now();
+        sleepEndAt = sleepEndAt.with(sleepEndTime).with(today);
+
+        // 어제 자고 오늘 일어난 경우
+        if (sleepStartAt.isAfter(sleepEndAt)) {
+            sleepStartAt = sleepStartAt.minusDays(1);
+        }
+        logger.debug("기상 시간 : {}, 수면 시간 : {}", sleepStartAt, sleepEndAt);
+
+        // 4. 하루 기록 수면 시각, 기상 시각 업데이트
+        dailyRecord.setSleepRecord(sleepStartAt, sleepEndAt);
         logger.debug(dailyRecord.toString());
         dailyRecordRepository.save(dailyRecord);
 
@@ -252,8 +269,7 @@ public class DailyRecordServiceImpl implements DailyRecordService {
 
         logger.debug(dailyRecord.toString());
 
-        dailyRecord.setSleepAt(sleepRecordApiReqDto.getSleepAt());
-        dailyRecord.setAwakeAt(sleepRecordApiReqDto.getAwakeAt());
+        dailyRecord.setSleepRecord(sleepRecordApiReqDto.getSleepAt(), sleepRecordApiReqDto.getAwakeAt());
 
         logger.debug(dailyRecord.toString());
 

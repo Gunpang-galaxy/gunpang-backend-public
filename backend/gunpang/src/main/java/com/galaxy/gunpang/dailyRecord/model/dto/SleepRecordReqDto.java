@@ -2,17 +2,21 @@ package com.galaxy.gunpang.dailyRecord.model.dto;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
-
-
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class SleepRecordReqDto {
 
     @NonNull
-    private LocalDateTime sleepAt;
+    private int sleepStartHour;
+
     @NonNull
-    private LocalDateTime awakeAt;
+    private int sleepStartMinute;
+
+    @NonNull
+    private int sleepEndHour;
+
+    @NonNull
+    private int sleepEndMinute;
 
 }
