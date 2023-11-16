@@ -12,6 +12,6 @@ public interface AvatarRepositoryCustom {
     Optional<Long> getNextIdByIdAndUserId(Long avatarId, Long userId);
     Optional<Long> getCurIdByUserId(Long userId);
 
-    Page<Avatar> getLevelUpAvatars(Pageable pageable);
+    Page<Avatar> findLevelUpAvatars(Pageable pageable);
 //    List<Avatar> findAllAliveAvatar();
 }

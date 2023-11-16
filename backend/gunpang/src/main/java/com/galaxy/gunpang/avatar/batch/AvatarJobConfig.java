@@ -119,7 +119,7 @@ public class AvatarJobConfig {
     public SynchronizedItemStreamReader<Avatar> avatarSyncLevelUpReader(AvatarRepository avatarRepository) {
         RepositoryItemReader<Avatar> avatarLevelUpReader = new RepositoryItemReaderBuilder()
                     .repository(avatarRepository)
-                    .methodName("getLevelUpAvatars")
+                    .methodName("findLevelUpAvatars")
                     .pageSize(CHUNK_SIZE)
                     .sorts(Collections.singletonMap("id", Sort.Direction.ASC))
                     .name("avatarLevelUpReader")

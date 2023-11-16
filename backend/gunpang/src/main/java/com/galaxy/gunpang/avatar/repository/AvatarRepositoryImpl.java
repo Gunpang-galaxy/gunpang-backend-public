@@ -46,7 +46,7 @@ public class AvatarRepositoryImpl implements AvatarRepositoryCustom{
     }
 
     @Override
-    public Page<Avatar> getLevelUpAvatars(Pageable pageable) {
+    public Page<Avatar> findLevelUpAvatars(Pageable pageable) {
         LocalDate[] dates = new LocalDate[4];
         for(int i = 0; i < dates.length;) dates[i] = LocalDate.now().minusDays(7 * (++i));
         List<Avatar> avatars = queryFactory.selectFrom(avatar)
