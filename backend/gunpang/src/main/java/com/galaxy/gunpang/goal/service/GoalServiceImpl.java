@@ -47,7 +47,7 @@ public class GoalServiceImpl implements GoalService{
                 .exerciseDay((byte)goalReqDto.getExerciseDay())
                 .exerciseTime(goalReqDto.getExerciseTime())
                 .sleepStartTime(LocalTime.of(goalReqDto.getStartTime(), goalReqDto.getStartMinute()))
-                .sleepEndTime(LocalTime.of(goalReqDto.getEntTime(), goalReqDto.getEndMinute()))
+                .sleepEndTime(LocalTime.of(goalReqDto.getEndTime(), goalReqDto.getEndMinute()))
                 .build();
         goalRepository.save(goal);
     }
