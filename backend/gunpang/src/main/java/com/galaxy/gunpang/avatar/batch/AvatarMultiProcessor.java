@@ -15,6 +15,7 @@ public class AvatarMultiProcessor implements ItemProcessor<Avatar,Avatar> {
 
     @Override
     public Avatar process(Avatar avatar){
+        if(avatar.getStatus() != Status.ALIVE) return avatar;
         log.debug("avatarId : " + avatar.getId());
         avatarProcessor.init(avatar);
         log.debug("init 완료");

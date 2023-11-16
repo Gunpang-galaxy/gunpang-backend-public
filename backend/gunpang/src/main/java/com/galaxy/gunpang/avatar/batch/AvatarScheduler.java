@@ -28,10 +28,6 @@ public class AvatarScheduler {
 
     @Scheduled(cron = "0 0 0 * * *")
     public void damage(){
-//        Map<String, JobParameter> confMap = new HashMap<>();
-//        confMap.put("time", new JobParameter(System.currentTimeMillis()));
-
-//        JobParameters jobParameters = new JobParameters(confMap);
         JobParameters jobParameters = new JobParametersBuilder()
                 .addDate("date", new Date())
                 .addLong("time", System.currentTimeMillis()).toJobParameters();
@@ -43,12 +39,9 @@ public class AvatarScheduler {
             throw new RuntimeException(e);
         }
     }
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "10 0 0 * * *")
     public void levelUp(){
-//        Map<String, JobParameter> confMap = new HashMap<>();
-//        confMap.put("time", new JobParameter(System.currentTimeMillis()));
 
-//        JobParameters jobParameters = new JobParameters(confMap);
         JobParameters jobParameters = new JobParametersBuilder()
                 .addDate("date", new Date())
                 .addLong("time", System.currentTimeMillis())
