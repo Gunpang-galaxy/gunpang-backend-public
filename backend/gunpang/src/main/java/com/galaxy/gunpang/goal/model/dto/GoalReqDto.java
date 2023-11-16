@@ -14,7 +14,7 @@ public class GoalReqDto {
     @NonNull
     private int startMinute;
     @NonNull
-    private int entTime;
+    private int endTime;
     @NonNull
     private int endMinute;
     @NonNull
