@@ -1,10 +1,7 @@
 package com.galaxy.gunpang.avatar.batch;
 
 import com.galaxy.gunpang.avatar.model.Avatar;
-import com.galaxy.gunpang.avatar.model.DeathCause;
-import com.galaxy.gunpang.avatar.model.enums.Status;
 import com.galaxy.gunpang.avatar.repository.AvatarRepository;
-import com.galaxy.gunpang.avatar.repository.DeathCauseRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -12,6 +9,7 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
@@ -48,6 +46,7 @@ public class AvatarJobConfig {
         executor.setMaxPoolSize(POOL_SIZE);
         executor.setThreadNamePrefix("multi-thread-");
         executor.setWaitForTasksToCompleteOnShutdown(Boolean.TRUE);
+        executor.setAwaitTerminationSeconds(15);
         executor.initialize();
         return executor;
     }
@@ -55,6 +54,7 @@ public class AvatarJobConfig {
     @Bean(name = "damageJob")
     public Job damageJob(Step damageStep){
         return jobBuilderFactory.get("damageJob")
+                .incrementer(new RunIdIncrementer())
                 .listener(avatarJobExecutionListener)
                 .flow(damageStep)
                 .end()
@@ -64,6 +64,7 @@ public class AvatarJobConfig {
     @Bean(name = "levelUpJob")
     public Job levelUpJob(Step levelUpStep){
         return jobBuilderFactory.get("levelUpJob")
+                .incrementer(new RunIdIncrementer())
                 .listener(avatarJobExecutionListener)
                 .flow(levelUpStep)
                 .end()
@@ -78,8 +79,8 @@ public class AvatarJobConfig {
                 .reader(avatarDamageReader)
                 .processor(avatarMultiProcessor)
                 .writer(avatarWriter)
-                .taskExecutor(executor())
-                .throttleLimit(POOL_SIZE)
+//                .taskExecutor(executor())
+//                .throttleLimit(POOL_SIZE)
                 .listener(avatarChunkListener)
                 .build();
     }
@@ -92,8 +93,8 @@ public class AvatarJobConfig {
                 .reader(avatarLevelUpReader)
                 .processor(avatarLevelProcessor)
                 .writer(avatarWriter)
-                .taskExecutor(executor())
-                .throttleLimit(POOL_SIZE)
+//                .taskExecutor(executor())
+//                .throttleLimit(POOL_SIZE)
                 .listener(avatarChunkListener)
                 .build();
     }
@@ -101,44 +102,52 @@ public class AvatarJobConfig {
     @Bean
     @StepScope
     public SynchronizedItemStreamReader<Avatar> avatarSyncDamageReader(AvatarRepository avatarRepository) {
+        try {
         RepositoryItemReader avatarDamageReader = new RepositoryItemReaderBuilder()
                     .repository(avatarRepository)
-                    .methodName("findByStatus")
+                    .methodName("findAll")
                     .pageSize(CHUNK_SIZE)
-                    .arguments(Arrays.asList(Status.ALIVE))
                     .sorts(Collections.singletonMap("id", Sort.Direction.ASC))
                     .name("avatarDamageReader")
                     .build();
         SynchronizedItemStreamReader<Avatar> reader =  new SynchronizedItemStreamReader<Avatar>();
         reader.setDelegate(avatarDamageReader);
         return reader;
+    } catch(Exception e){
+        e.printStackTrace();
+    }
+        return null;
     }
 
     @Bean
     @StepScope
-    public SynchronizedItemStreamReader<Avatar> avatarSyncLevelUpReader(AvatarRepository avatarRepository) {
-        RepositoryItemReader<Avatar> avatarLevelUpReader = new RepositoryItemReaderBuilder()
+    public SynchronizedItemStreamReader<Avatar> avatarSyncLevelUpReader(AvatarRepository avatarRepository) throws Exception{
+        try {
+            RepositoryItemReader<Avatar> avatarLevelUpReader = new RepositoryItemReaderBuilder()
                     .repository(avatarRepository)
                     .methodName("findLevelUpAvatars")
                     .pageSize(CHUNK_SIZE)
                     .sorts(Collections.singletonMap("id", Sort.Direction.ASC))
                     .name("avatarLevelUpReader")
                     .build();
-        SynchronizedItemStreamReader<Avatar> reader = new SynchronizedItemStreamReader<Avatar>();
-        reader.setDelegate(avatarLevelUpReader);
-        return reader;
+            SynchronizedItemStreamReader<Avatar> reader = new SynchronizedItemStreamReader<Avatar>();
+            reader.setDelegate(avatarLevelUpReader);
+            return reader;
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Bean
     @StepScope
     public ItemWriter<Avatar> avatarWriter(AvatarRepository avatarRepository) {
-        return avatars -> avatarRepository.saveAll(avatars);
-    }
-
-    @Bean
-    @StepScope
-    public ItemWriter<DeathCause> deathCauseWriter(DeathCauseRepository deathCauseRepository){
-        return deathCauses -> deathCauseRepository.saveAll(deathCauses);
+        try {
+            return avatars -> avatarRepository.saveAll(avatars);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

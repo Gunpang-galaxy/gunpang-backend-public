@@ -1,5 +1,6 @@
 package com.galaxy.gunpang.develop;
 
+import com.galaxy.gunpang.avatar.batch.AvatarScheduler;
 import com.galaxy.gunpang.avatar.model.Avatar;
 import com.galaxy.gunpang.avatar.model.DeathCause;
 import com.galaxy.gunpang.avatar.model.dto.AvatarAddReqDto;
@@ -55,6 +56,21 @@ public class DevelopController {
     private final AvatarRepository avatarRepository;
     private final DeathCauseRepository deathCauseRepository;
 
+    private final AvatarScheduler avatarScheduler;
+
+//    @Operation(summary = "매일 실행되는 scheduler job 실행", description = "매일 0시에 실행되는 job 실행")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "요청 성공")
+//            , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
+//    })
+//    @PostMapping("/avatar/daily")
+//    public ResponseEntity<?> daily(){
+//        log.debug("[POST] daily method");
+//
+//        avatarScheduler.daily();
+//
+//        return ResponseEntity.ok().build();
+//    }
     @Operation(summary = "아바타 체력 변화", description = "ALIVE 상태의 전체 아바타에 로직 실행")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공")
@@ -62,24 +78,9 @@ public class DevelopController {
     })
     @PostMapping("/avatar/hp")
     public ResponseEntity<?> hp(){
-        log.debug("[PUT] hp method {}");
+        log.debug("[POST] hp method");
 
-        Map<String, JobParameter> confMap = new HashMap<>();
-        confMap.put("time", new JobParameter(System.currentTimeMillis()));
-
-        JobParameters jobParameters = new JobParameters(confMap);
-
-        try{
-            jobLauncher.run(damageJob, jobParameters);
-        } catch (JobInstanceAlreadyCompleteException e) {
-            throw new RuntimeException(e);
-        } catch (JobExecutionAlreadyRunningException e) {
-            throw new RuntimeException(e);
-        } catch (JobParametersInvalidException e) {
-            throw new RuntimeException(e);
-        } catch (JobRestartException e) {
-            throw new RuntimeException(e);
-        }
+        avatarScheduler.damage();
 
         return ResponseEntity.ok().build();
     }
@@ -91,24 +92,9 @@ public class DevelopController {
     })
     @PostMapping("/avatar/level-up")
     public ResponseEntity<?> levelUp(){
-        log.debug("[PUT] levelUp method {}");
+        log.debug("[POST] levelUp method");
 
-        Map<String, JobParameter> confMap = new HashMap<>();
-        confMap.put("time", new JobParameter(System.currentTimeMillis()));
-
-        JobParameters jobParameters = new JobParameters(confMap);
-
-        try{
-            jobLauncher.run(levelUpJob, jobParameters);
-        } catch (JobInstanceAlreadyCompleteException e) {
-            throw new RuntimeException(e);
-        } catch (JobExecutionAlreadyRunningException e) {
-            throw new RuntimeException(e);
-        } catch (JobParametersInvalidException e) {
-            throw new RuntimeException(e);
-        } catch (JobRestartException e) {
-            throw new RuntimeException(e);
-        }
+        avatarScheduler.levelUp();
 
         return ResponseEntity.ok().build();
     }
@@ -120,7 +106,7 @@ public class DevelopController {
     })
     @PostMapping("/test-data")
     public ResponseEntity<?> data(){
-        log.debug("[PUT] hp method {}");
+        log.debug("[PUT] hp method");
 
         String randomString = new RandomString(8).nextString();
 
@@ -144,6 +130,27 @@ public class DevelopController {
         return ResponseEntity.ok().body(logInResDto);
     }
 
+
+    @Operation(summary = "테스트 다수 데이터 넣기", description = "유저, 아바타, 목표 생성")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = LogInResDto.class)))
+            , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
+    })
+    @PostMapping("/test-data-multiple")
+    public ResponseEntity<?> multipleData(){
+        log.debug("[Post] multipleData method");
+
+        int num = new Random().nextInt(100);
+        for(int i = 0; i < 100 + num; i++){
+            data();
+        }
+        for(int i = 0; i < 100 + num; i++) {
+            nData(7);
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "테스트 n일전 데이터 넣기", description = "유저, 아바타, 목표 생성")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = LogInResDto.class)))
@@ -151,7 +158,7 @@ public class DevelopController {
     })
     @PostMapping("/test-n-data")
     public ResponseEntity<?> nData(@RequestParam int n){
-        log.debug("[PUT] hp method {}");
+        log.debug("[POST] nData method {}", n);
 
         String randomString = new RandomString(8).nextString();
 
@@ -182,7 +189,7 @@ public class DevelopController {
     })
     @PostMapping("/dummyDamage")
     public ResponseEntity<?> monthDummyDamageData(@RequestHeader("Authorization") String token, @RequestParam int year, @RequestParam int month){
-        log.debug("[PUT] hp method {}");
+        log.debug("[POST] dummyDamage method : {}, {}", year, month);
 
         Long userId = userService.getIdByToken(token).getId();
 
