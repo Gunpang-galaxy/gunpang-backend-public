@@ -5,10 +5,7 @@ import com.galaxy.gunpang.avatar.batch.AvatarJobConfig;
 import com.galaxy.gunpang.avatar.repository.AvatarRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParameter;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersInvalidException;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
@@ -17,6 +14,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,10 +28,13 @@ public class AvatarScheduler {
 
     @Scheduled(cron = "0 0 0 * * *")
     public void damage(){
-        Map<String, JobParameter> confMap = new HashMap<>();
-        confMap.put("time", new JobParameter(System.currentTimeMillis()));
+//        Map<String, JobParameter> confMap = new HashMap<>();
+//        confMap.put("time", new JobParameter(System.currentTimeMillis()));
 
-        JobParameters jobParameters = new JobParameters(confMap);
+//        JobParameters jobParameters = new JobParameters(confMap);
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addDate("date", new Date())
+                .addLong("time", System.currentTimeMillis()).toJobParameters();
 
         try{
             jobLauncher.run(damageJob, jobParameters);
@@ -44,10 +45,14 @@ public class AvatarScheduler {
     }
     @Scheduled(cron = "0 0 0 * * *")
     public void levelUp(){
-        Map<String, JobParameter> confMap = new HashMap<>();
-        confMap.put("time", new JobParameter(System.currentTimeMillis()));
+//        Map<String, JobParameter> confMap = new HashMap<>();
+//        confMap.put("time", new JobParameter(System.currentTimeMillis()));
 
-        JobParameters jobParameters = new JobParameters(confMap);
+//        JobParameters jobParameters = new JobParameters(confMap);
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addDate("date", new Date())
+                .addLong("time", System.currentTimeMillis())
+                .toJobParameters();
 
         try{
             jobLauncher.run(levelUpJob, jobParameters);
