@@ -10,6 +10,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Slf4j
@@ -18,7 +19,9 @@ import java.util.List;
 public class AvatarLevelProcessor implements ItemProcessor<Avatar,Avatar> {
     @Override
     public Avatar process(Avatar avatar) {
-        if(avatar.getStatus() == Status.GRADUATED) return avatar;
+        if(avatar.getStatus() != Status.ALIVE
+                || !avatar.getStartedDate().isBefore(LocalDate.now())
+                || ChronoUnit.DAYS.between(avatar.getStartedDate(), LocalDate.now()) % 7 != 0) return avatar;
         Stage[] stages = Stage.values();
         int level = avatar.getStage().ordinal();
         log.debug("stage length = {}", stages.length);
