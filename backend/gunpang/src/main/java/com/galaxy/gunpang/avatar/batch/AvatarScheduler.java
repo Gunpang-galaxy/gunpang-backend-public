@@ -23,39 +23,18 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AvatarScheduler {
     private final JobLauncher jobLauncher;
-    private final Job damageJob;
-    private final Job levelUpJob;
+    private final Job dailyJob;
 
     @Scheduled(cron = "0 0 0 * * *")
-    public void damage(){
+    public void daily(){
         JobParameters jobParameters = new JobParametersBuilder()
                 .addDate("date", new Date())
                 .addLong("time", System.currentTimeMillis()).toJobParameters();
 
         try{
-            jobLauncher.run(damageJob, jobParameters);
+            jobLauncher.run(dailyJob, jobParameters);
         } catch (JobInstanceAlreadyCompleteException | JobExecutionAlreadyRunningException |
                  JobParametersInvalidException | JobRestartException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    @Scheduled(cron = "10 0 0 * * *")
-    public void levelUp(){
-
-        JobParameters jobParameters = new JobParametersBuilder()
-                .addDate("date", new Date())
-                .addLong("time", System.currentTimeMillis())
-                .toJobParameters();
-
-        try{
-            jobLauncher.run(levelUpJob, jobParameters);
-        } catch (JobInstanceAlreadyCompleteException e) {
-            throw new RuntimeException(e);
-        } catch (JobExecutionAlreadyRunningException e) {
-            throw new RuntimeException(e);
-        } catch (JobParametersInvalidException e) {
-            throw new RuntimeException(e);
-        } catch (JobRestartException e) {
             throw new RuntimeException(e);
         }
     }

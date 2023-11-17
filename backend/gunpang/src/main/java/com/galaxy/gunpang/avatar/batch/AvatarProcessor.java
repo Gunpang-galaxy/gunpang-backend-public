@@ -31,9 +31,9 @@ public class AvatarProcessor {
     private LocalDate now;
 
     public void init(Avatar avatar){
-        dailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(avatar.getUser().getId(), LocalDate.now());
-        goal = goalRepository.findByAvatar_Id(avatar.getId());
         now = LocalDate.now().minusDays(1);
+        dailyRecord = dailyRecordRepository.getDailyRecordOnTodayByUserId(avatar.getUser().getId(), now);
+        goal = goalRepository.findByAvatar_Id(avatar.getId());
     }
 
     public boolean checkDailyRecord(Avatar avatar, int damage, Cause cause){
@@ -84,23 +84,23 @@ public class AvatarProcessor {
 
     public Avatar foodProcess(Avatar avatar){
         if(!checkDailyRecord(avatar, 1, Cause.FOOD_LACK)) return avatar;
-        int mealCnt = 0;
+        int unMealCnt = 0;
         int unHealthCnt = 0;
 
         if(dailyRecord.get().getBreakfastFoodType() == null || dailyRecord.get().getBreakfastFoodType() == FoodType.NOT_RECORD){
-            ++mealCnt;
+            ++unMealCnt;
             ++unHealthCnt;
         }else if(dailyRecord.get().getBreakfastFoodType() == FoodType.BAD) ++unHealthCnt;
         if(dailyRecord.get().getLunchFoodType() == null || dailyRecord.get().getLunchFoodType() == FoodType.NOT_RECORD){
-            ++mealCnt;
+            ++unMealCnt;
             ++unHealthCnt;
         }else if(dailyRecord.get().getLunchFoodType() == FoodType.BAD) ++unHealthCnt;
         if(dailyRecord.get().getDinnerFoodType() == null || dailyRecord.get().getDinnerFoodType() == FoodType.NOT_RECORD){
-            ++mealCnt;
+            ++unMealCnt;
             ++unHealthCnt;
         }else if(dailyRecord.get().getDinnerFoodType() == FoodType.BAD) ++unHealthCnt;
 
-        if(mealCnt < 3 || unHealthCnt > 1){
+        if(unMealCnt > 0 || unHealthCnt > 1){
             damaged(avatar, 1);
             createDeathCause(avatar, Cause.FOOD_LACK);
             log.debug("식사로 체력 깎임 : {}", avatar.getId());

@@ -8,6 +8,16 @@ import com.galaxy.gunpang.avatar.model.enums.Cause;
 import com.galaxy.gunpang.avatar.repository.AvatarRepository;
 import com.galaxy.gunpang.avatar.repository.DeathCauseRepository;
 import com.galaxy.gunpang.avatar.service.AvatarService;
+import com.galaxy.gunpang.dailyRecord.exception.FoodRecordTimeBadRequestException;
+import com.galaxy.gunpang.dailyRecord.model.DailyRecord;
+import com.galaxy.gunpang.dailyRecord.model.dto.SleepRecordReqDto;
+import com.galaxy.gunpang.dailyRecord.model.enums.FoodType;
+import com.galaxy.gunpang.dailyRecord.repository.DailyRecordRepository;
+import com.galaxy.gunpang.dailyRecord.service.DailyRecordService;
+import com.galaxy.gunpang.exercise.model.Exercise;
+import com.galaxy.gunpang.exercise.model.dto.ExerciseRecordReqDto;
+import com.galaxy.gunpang.exercise.model.enums.ExerciseIntensity;
+import com.galaxy.gunpang.exercise.repository.ExerciseRepository;
 import com.galaxy.gunpang.goal.model.dto.GoalReqDto;
 import com.galaxy.gunpang.goal.service.GoalService;
 import com.galaxy.gunpang.user.model.dto.LogInResDto;
@@ -32,10 +42,14 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 @Tag(name = "Develop", description = "개발자 테스트용 API")
@@ -45,58 +59,161 @@ import java.util.*;
 @RequiredArgsConstructor
 public class DevelopController {
     private final JobLauncher jobLauncher;
-    private final Job damageJob;
-    private final Job levelUpJob;
     private final UserService userService;
     private final AvatarService avatarService;
     private final GoalService goalService;
     private final JwtService jwtService;
     private final RedisService redisService;
+    private final DailyRecordService dailyRecordService;
+    private final DailyRecordRepository dailyRecordRepository;
+    private final ExerciseRepository exerciseRepository;
 
     private final AvatarRepository avatarRepository;
     private final DeathCauseRepository deathCauseRepository;
 
     private final AvatarScheduler avatarScheduler;
 
-//    @Operation(summary = "매일 실행되는 scheduler job 실행", description = "매일 0시에 실행되는 job 실행")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "요청 성공")
-//            , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
-//    })
-//    @PostMapping("/avatar/daily")
-//    public ResponseEntity<?> daily(){
-//        log.debug("[POST] daily method");
-//
-//        avatarScheduler.daily();
-//
-//        return ResponseEntity.ok().build();
-//    }
     @Operation(summary = "아바타 체력 변화", description = "ALIVE 상태의 전체 아바타에 로직 실행")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공")
             , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
     })
-    @PostMapping("/avatar/hp")
-    public ResponseEntity<?> hp(){
-        log.debug("[POST] hp method");
+    @PostMapping("/avatar/daily")
+    public ResponseEntity<?> daily(){
+        log.debug("[POST] daily method");
 
-        avatarScheduler.damage();
+        avatarScheduler.daily();
 
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "아바타 레벨업 & 졸업", description = "살아있는 일주일이 지난 아바타에 대해 로직 실행")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "요청 성공")
-            , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
+    @Operation(summary = "테스트 n일전 기록 생성", description = "n일전 하루 기록을 생성합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "하루 기록 생성 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "403", description = "로그인 필요"),
+            @ApiResponse(responseCode = "404", description = "하루 기록 생성 실패"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    @PostMapping("/avatar/level-up")
-    public ResponseEntity<?> levelUp(){
-        log.debug("[POST] levelUp method");
+    @PostMapping(value = "/records/createNRecord")
+    public ResponseEntity<?> createRecord(@RequestHeader("Authorization") String token, @RequestParam int n) throws Exception {
+        Long userId = userService.getIdByToken(token).getId();
 
-        avatarScheduler.levelUp();
+        DailyRecord dailyRecord = new DailyRecord();
+        dailyRecord.setRecordDate(LocalDate.now().minusDays(n));
+        dailyRecord.setUserId(userId);
+        dailyRecordRepository.save(dailyRecord);
 
-        return ResponseEntity.ok().build();
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "테스트 n일전 수면 기록", description = "n일전 수면 기록수동으로 저장하는 용도")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "수면 기록 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "403", description = "로그인 필요"),
+            @ApiResponse(responseCode = "404", description = "수면 기록 실패"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    @PostMapping(value = "/records/sleep")
+    public ResponseEntity<?> recordSleep(@RequestHeader("Authorization") String token, @RequestBody SleepRecordReqDto sleepRecordReqDto, @RequestParam int n) throws Exception {
+        Long userId = userService.getIdByToken(token).getId();
+        // 1. 오늘 날짜에 맞는 하루 기록 가져오기
+        LocalDate today = LocalDate.now().minusDays(n);
+        DailyRecord dailyRecord = dailyRecordService.returnDailyRecordOfDate(userId, today);
+
+        // 2. 입력값 LocalTime으로 수정
+        LocalTime sleepStartTime = LocalTime.of(sleepRecordReqDto.getSleepStartHour(), sleepRecordReqDto.getSleepStartMinute());
+        LocalTime sleepEndTime = LocalTime.of(sleepRecordReqDto.getSleepEndHour(), sleepRecordReqDto.getSleepEndMinute());
+
+        // 3. LocalDateTime 형식으로 수면 시간 수정
+        LocalDateTime sleepStartAt = LocalDateTime.now();
+        sleepStartAt = sleepStartAt.with(sleepStartTime).with(today);
+        LocalDateTime sleepEndAt = LocalDateTime.now();
+        sleepEndAt = sleepEndAt.with(sleepEndTime).with(today);
+
+        // 어제 자고 오늘 일어난 경우
+        if (sleepStartAt.isAfter(sleepEndAt)) {
+            sleepStartAt = sleepStartAt.minusDays(1);
+        }
+
+        // 4. 하루 기록 수면 시각, 기상 시각 업데이트
+        dailyRecord.setSleepRecord(sleepStartAt, sleepEndAt);
+        dailyRecordRepository.save(dailyRecord);
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "테스트 n일전 식사 기록", description = "n일전 식사한 기록을 저장합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "식사 기록 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "403", description = "로그인 필요"),
+            @ApiResponse(responseCode = "404", description = "식사 기록 실패"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    @PostMapping(value = "/records/food")
+    public ResponseEntity<?> recordFood(@RequestHeader("Authorization") String token, @RequestBody FoodType foodType, @RequestParam int hour, @RequestParam int n) throws Exception {
+        Long userId = userService.getIdByToken(token).getId();
+        //오늘 날짜에 맞는 하루 기록 가져오기
+        //언제 밥먹었은지보고 하루 기록에 기록 + 저장
+
+        LocalDate today = LocalDate.now().minusDays(n);
+
+        DailyRecord dailyRecord = dailyRecordService.returnDailyRecordOfDate(userId, today);
+
+        if (5 <= hour && hour <= 10) {
+            //이미 기록이 있을 시에는 기록 덮어쓰기
+            dailyRecord.setBreakfastFoodType(foodType);
+        }
+        if (11 <= hour && hour <= 16) {
+            dailyRecord.setLunchFoodType(foodType);
+        }
+        if (17 <= hour && hour <= 21) {
+            dailyRecord.setDinnerFoodType(foodType);
+        }
+        if (22 <= hour || hour <= 4) {
+            throw new FoodRecordTimeBadRequestException(hour);
+        }
+
+        dailyRecordRepository.save(dailyRecord);
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "테스트 n일전 운동 기록", description = "n일전 운동한 기록을 저장합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "운동 기록 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "403", description = "로그인 필요"),
+            @ApiResponse(responseCode = "404", description = "운동 기록 실패"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    @PostMapping(consumes = "application/json;charset=UTF-8")
+    public ResponseEntity<?> recordExercise(@RequestHeader("Authorization") String token, @RequestBody ExerciseRecordReqDto exerciseRecordReqDto, @RequestParam int n) throws Exception {
+        Long userId = userService.getIdByToken(token).getId();
+
+        LocalDateTime startedTime = exerciseRecordReqDto.getStartedTime();
+        LocalDateTime finishedTime = exerciseRecordReqDto.getFinishedTime();
+        ExerciseIntensity exerciseIntensity = exerciseRecordReqDto.getExerciseIntensity();
+
+        //정보들을 db에 넣어야함
+        LocalDate today = LocalDate.now().minusDays(n);
+
+        //운동 강도, 시작 시간, 종료 시간 등록
+        //만약 오늘 날짜로 하루 기록이 있다면 있는 것과 연결
+        DailyRecord dailyRecord = dailyRecordService.returnDailyRecordOfDate(userId, today);
+        //운동 시간 계산
+        long exerciseAccTime = Duration.between(startedTime, finishedTime).toSeconds();
+
+        dailyRecord.setExerciseAccTime(dailyRecord.getExerciseAccTime()+exerciseAccTime);
+        //하루 기록 업데이트
+        dailyRecordRepository.save(dailyRecord);
+        //운동 저장
+        Exercise exercise = new Exercise(dailyRecord.getId(), exerciseIntensity, startedTime, finishedTime);
+        exerciseRepository.save(exercise);
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @Operation(summary = "테스트 데이터 넣기", description = "유저, 아바타, 목표 생성")

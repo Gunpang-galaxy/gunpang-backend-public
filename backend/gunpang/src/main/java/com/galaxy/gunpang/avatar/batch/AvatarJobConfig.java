@@ -10,9 +10,14 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.integration.async.AsyncItemWriter;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
+import org.springframework.batch.item.database.JpaItemWriter;
+import org.springframework.batch.item.database.JpaPagingItemReader;
+import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
+import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +26,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import javax.persistence.EntityManagerFactory;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.Future;
@@ -35,6 +41,7 @@ public class AvatarJobConfig {
     private final AvatarLevelProcessor avatarLevelProcessor;
     private final AvatarChunkListener avatarChunkListener;
     private final AvatarJobExecutionListener avatarJobExecutionListener;
+    private final EntityManagerFactory entityManagerFactory;
 
     private final int CHUNK_SIZE = 8;
     private final int POOL_SIZE = 4;
@@ -51,103 +58,58 @@ public class AvatarJobConfig {
         return executor;
     }
 
-    @Bean(name = "damageJob")
-    public Job damageJob(Step damageStep){
-        return jobBuilderFactory.get("damageJob")
+    @Bean
+    public Job dailyJob(){
+        return jobBuilderFactory.get("dailyJob")
                 .incrementer(new RunIdIncrementer())
                 .listener(avatarJobExecutionListener)
-                .flow(damageStep)
-                .end()
-                .build();
-    }
-
-    @Bean(name = "levelUpJob")
-    public Job levelUpJob(Step levelUpStep){
-        return jobBuilderFactory.get("levelUpJob")
-                .incrementer(new RunIdIncrementer())
-                .listener(avatarJobExecutionListener)
-                .flow(levelUpStep)
-                .end()
+                .start(damageStep())
+                .next(levelUpStep())
                 .build();
     }
 
     @Bean
-    public Step damageStep(@Qualifier("avatarSyncDamageReader") SynchronizedItemStreamReader<Avatar> avatarDamageReader,
-                                     @Qualifier("avatarWriter") ItemWriter<Avatar> avatarWriter){
+    public Step damageStep(){
         return stepBuilderFactory.get("damageStep")
                 .<Avatar, Avatar>chunk(CHUNK_SIZE)
-                .reader(avatarDamageReader)
+                .reader(avatarReader())
                 .processor(avatarMultiProcessor)
-                .writer(avatarWriter)
-//                .taskExecutor(executor())
-//                .throttleLimit(POOL_SIZE)
+                .writer(avatarWriter())
+                .taskExecutor(executor())
+                .throttleLimit(POOL_SIZE)
                 .listener(avatarChunkListener)
                 .build();
     }
 
     @Bean
-    public Step levelUpStep(@Qualifier("avatarSyncLevelUpReader") SynchronizedItemStreamReader<Avatar> avatarLevelUpReader,
-                            @Qualifier("avatarWriter") ItemWriter<Avatar> avatarWriter){
+    public Step levelUpStep(){
         return stepBuilderFactory.get("levelUpStep")
                 .<Avatar, Avatar>chunk(CHUNK_SIZE)
-                .reader(avatarLevelUpReader)
+                .reader(avatarReader())
                 .processor(avatarLevelProcessor)
-                .writer(avatarWriter)
-//                .taskExecutor(executor())
-//                .throttleLimit(POOL_SIZE)
+                .writer(avatarWriter())
+                .taskExecutor(executor())
+                .throttleLimit(POOL_SIZE)
                 .listener(avatarChunkListener)
                 .build();
     }
 
     @Bean
     @StepScope
-    public SynchronizedItemStreamReader<Avatar> avatarSyncDamageReader(AvatarRepository avatarRepository) {
-        try {
-        RepositoryItemReader avatarDamageReader = new RepositoryItemReaderBuilder()
-                    .repository(avatarRepository)
-                    .methodName("findAll")
-                    .pageSize(CHUNK_SIZE)
-                    .sorts(Collections.singletonMap("id", Sort.Direction.ASC))
-                    .name("avatarDamageReader")
-                    .build();
-        SynchronizedItemStreamReader<Avatar> reader =  new SynchronizedItemStreamReader<Avatar>();
-        reader.setDelegate(avatarDamageReader);
-        return reader;
-    } catch(Exception e){
-        e.printStackTrace();
-    }
-        return null;
+    public JpaPagingItemReader<Avatar> avatarReader(){
+        return new JpaPagingItemReaderBuilder<Avatar>()
+                .entityManagerFactory(entityManagerFactory)
+                .pageSize(CHUNK_SIZE)
+                .queryString("SELECT a FROM Avatar a")
+                .saveState(false)
+                .build();
     }
 
     @Bean
     @StepScope
-    public SynchronizedItemStreamReader<Avatar> avatarSyncLevelUpReader(AvatarRepository avatarRepository) throws Exception{
-        try {
-            RepositoryItemReader<Avatar> avatarLevelUpReader = new RepositoryItemReaderBuilder()
-                    .repository(avatarRepository)
-                    .methodName("findLevelUpAvatars")
-                    .pageSize(CHUNK_SIZE)
-                    .sorts(Collections.singletonMap("id", Sort.Direction.ASC))
-                    .name("avatarLevelUpReader")
-                    .build();
-            SynchronizedItemStreamReader<Avatar> reader = new SynchronizedItemStreamReader<Avatar>();
-            reader.setDelegate(avatarLevelUpReader);
-            return reader;
-        } catch(Exception e){
-            e.printStackTrace();
-        }
-        return null;
+    public JpaItemWriter<Avatar> avatarWriter() {
+        return new JpaItemWriterBuilder<Avatar>()
+                .entityManagerFactory(entityManagerFactory)
+                .build();
     }
-
-    @Bean
-    @StepScope
-    public ItemWriter<Avatar> avatarWriter(AvatarRepository avatarRepository) {
-        try {
-            return avatars -> avatarRepository.saveAll(avatars);
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return null;
-    }
-
 }

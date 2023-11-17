@@ -27,9 +27,8 @@ public class DailyRecord extends BaseEntity {
     @Column(nullable = false)
     private Long userId;
 
-    @CreatedDate
     @Column(nullable = false)
-    private LocalDate recordDate;
+    private LocalDate recordDate = LocalDate.now();
 
     @Column()
     @ColumnDefault("0")
@@ -52,6 +51,8 @@ public class DailyRecord extends BaseEntity {
 
     @Column()
     private LocalDateTime awakeAt;
+
+    public void setRecordDate(LocalDate recordDate) {this.recordDate = recordDate;}
 
     public void setExerciseAccTime(Long exerciseAccTime) {
         this.exerciseAccTime = exerciseAccTime;
