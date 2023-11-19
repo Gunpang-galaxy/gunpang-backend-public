@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class SleepRecordApiReqDto {
 
-    private LocalDateTime sleepAt;
-    private LocalDateTime awakeAt;
-    private LocalDate recordDate;
+    private String sleepAt;
+    private String awakeAt;
+    private String recordDate;
 }

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -259,7 +260,7 @@ public class DailyRecordServiceImpl implements DailyRecordService {
 
     @Override
     public void recordSleepWithHealthConnectApi(long userId, SleepRecordApiReqDto sleepRecordApiReqDto) {
-        LocalDate localDate = sleepRecordApiReqDto.getRecordDate();
+        LocalDate localDate = LocalDate.parse(sleepRecordApiReqDto.getRecordDate());
 
         if (!localDate.equals(LocalDate.now())) {
             throw new RecordDateNotTodayException();
@@ -269,7 +270,9 @@ public class DailyRecordServiceImpl implements DailyRecordService {
 
         logger.debug(dailyRecord.toString());
 
-        dailyRecord.setSleepRecord(sleepRecordApiReqDto.getSleepAt(), sleepRecordApiReqDto.getAwakeAt());
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+
+        dailyRecord.setSleepRecord(LocalDateTime.parse(sleepRecordApiReqDto.getSleepAt(), formatter), LocalDateTime.parse(sleepRecordApiReqDto.getAwakeAt(), formatter));
 
         logger.debug(dailyRecord.toString());
 
