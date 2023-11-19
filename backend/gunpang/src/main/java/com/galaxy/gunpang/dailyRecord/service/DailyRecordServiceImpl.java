@@ -9,11 +9,19 @@ import com.galaxy.gunpang.dailyRecord.model.dto.CheckDailyRecordResDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.SleepRecordApiReqDto;
 import com.galaxy.gunpang.dailyRecord.model.dto.SleepRecordReqDto;
 import com.galaxy.gunpang.dailyRecord.model.enums.FoodType;
+import com.galaxy.gunpang.dailyRecord.openFeignClient.ExerciseRecordClient;
+import com.galaxy.gunpang.dailyRecord.openFeignClient.dto.ExerciseRecordResDto;
 import com.galaxy.gunpang.dailyRecord.repository.DailyRecordRepository;
 import com.galaxy.gunpang.exercise.model.Exercise;
+import com.galaxy.gunpang.exercise.model.enums.ExerciseIntensity;
 import com.galaxy.gunpang.exercise.repository.ExerciseRepository;
 import java.time.LocalTime;
+
+import com.galaxy.gunpang.user.exception.UserNotFoundException;
+import com.galaxy.gunpang.user.model.User;
+import com.galaxy.gunpang.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -23,6 +31,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +43,8 @@ public class DailyRecordServiceImpl implements DailyRecordService {
 
     private final DailyRecordRepository dailyRecordRepository;
     private final ExerciseRepository exerciseRepository;
+    private final UserRepository userRepository;
+    private final ExerciseRecordClient exerciseRecordClient;
 
     private static final Logger logger = LoggerFactory.getLogger(DailyRecordService.class);
 
@@ -217,7 +228,34 @@ public class DailyRecordServiceImpl implements DailyRecordService {
         logger.debug(exercises.toString());
         List<CheckDailyRecordOnCalendarResDto.ExerciseOnDate> exerciseOnDates = new ArrayList<>();
 
-        //운돌들 가져온 거에서 운동 시간 계산해주고 리스트로 넣어야될듯
+        //운동들 가져온 거에서 운동 시간 계산해주고 리스트로 넣어야될듯
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new UserNotFoundException(userId)
+        );
+        int age = LocalDate.now().getYear() - user.getBirthYear(); // 사용자의 나이
+        String gender = user.getGender().toString(); // 사용자의 성별
+        List<ExerciseRecordResDto> exerciseRecordResDto = exerciseRecordClient.getExerciseRecord(user.getGoogleId(), date, age, gender);
+
+        // 운동 강도 계산을 위한 기준 심박수
+        int maxHeartRate = 220 - age;
+        int averageHeartRate = 72;
+        if (gender == "FEMALE") averageHeartRate = 76;
+        double lowHeartRate = (maxHeartRate - averageHeartRate) * 0.65 + averageHeartRate;
+        double highHeartRate = (maxHeartRate - averageHeartRate) * 0.85 + averageHeartRate;
+
+        // 운동 강도 계산
+        int low = 0, medium = 0, high = 0;
+        for (int i = 0; i < exerciseRecordResDto.size(); i++) {
+            double heartRate = exerciseRecordResDto.get(i).getHeartbeat();
+            if (heartRate < lowHeartRate) low++;
+            else if (heartRate < highHeartRate) medium++;
+            else high++;
+        }
+
+        logger.debug("low : " + low + ", medium : " + medium + ", high : " + high);
+        exerciseOnDates.add(new CheckDailyRecordOnCalendarResDto.ExerciseOnDate(String.format("%d분 %d초", low / 60, low % 60), ExerciseIntensity.LOW));
+        exerciseOnDates.add(new CheckDailyRecordOnCalendarResDto.ExerciseOnDate(String.format("%d분 %d초", medium / 60, medium % 60), ExerciseIntensity.MEDIUM));
+        exerciseOnDates.add(new CheckDailyRecordOnCalendarResDto.ExerciseOnDate(String.format("%d분 %d초", high / 60, high % 60), ExerciseIntensity.HIGH));
 
         for (int i = 0; i < exercises.size(); i++) {
             //운동 시간 계산
