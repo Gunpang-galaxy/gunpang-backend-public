@@ -8,22 +8,22 @@ import lombok.*;
 @NoArgsConstructor
 public class BodyCompositionResDto {
 
-    private float prevWeight;
+    private String prevWeight;
     @NonNull
-    private float curWeight;
-    private float prevMuscleMass;
+    private String curWeight;
+//    private float prevMuscleMass;
+//    @NonNull
+//    private float curMuscleMass;
+    private String prevFatMass;
     @NonNull
-    private float curMuscleMass;
-    private float prevFatMass;
+    private String curFatMass;
+    private String prevFatMassPct;
     @NonNull
-    private float curFatMass;
-    private float prevFatMassPct;
+    private String curFatMassPct;
+    private String prevBMI;
     @NonNull
-    private float curFatMassPct;
-    private float prevBMI;
-    @NonNull
-    private float curBMI;
-    private float prevBodyWaterMass;
-    @NonNull
-    private float curBodyWaterMass;
+    private String curBMI;
+//    private float prevBodyWaterMass;
+//    @NonNull
+//    private float curBodyWaterMass;
 }

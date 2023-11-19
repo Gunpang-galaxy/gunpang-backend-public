@@ -36,7 +36,7 @@ public class BodyCompositionController {
         logger.debug("controller");
 
         Long userId = userService.getIdByToken(token).getId();
-        bodyCompositionService.setBodyCompositionsWithHealthApi(userId,bodyCompositionApiReqDto.getWeight(),bodyCompositionApiReqDto.getMuscleMass(),bodyCompositionApiReqDto.getFatMass(),bodyCompositionApiReqDto.getBodyWaterMass());
+        bodyCompositionService.setBodyCompositionsWithHealthApi(userId,bodyCompositionApiReqDto.getWeight(), bodyCompositionApiReqDto.getFatMassPct());
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
