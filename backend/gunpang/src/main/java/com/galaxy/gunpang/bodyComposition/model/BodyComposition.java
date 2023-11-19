@@ -26,23 +26,19 @@ public class BodyComposition extends BaseEntity {
     private float weight;
 
     @Column(columnDefinition = "float", nullable = false)
-    private float muscleMass;
-
-    @Column(columnDefinition = "float", nullable = false)
     private float fatMass;
 
     @Column(columnDefinition = "float", nullable = false)
     private float fatMassPct;
 
     @Column(columnDefinition = "float", nullable = false)
-    private float bodyWaterMass;
+    private float bmi;
 
-    public BodyComposition(User user, float weight, float muscleMass, float fatMass, float fatMassPct, float bodyWaterMass) {
+    public BodyComposition(User user, float weight, float fatMass, float fatMassPct, float bmi) {
         this.user = user;
         this.weight = weight;
-        this.bodyWaterMass = bodyWaterMass;
-        this.muscleMass = muscleMass;
         this.fatMass = fatMass;
         this.fatMassPct = fatMassPct;
+        this.bmi = bmi;
     }
 }

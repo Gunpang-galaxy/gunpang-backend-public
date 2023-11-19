@@ -15,7 +15,5 @@ import javax.persistence.*;
 public class BodyCompositionApiReqDto {
 
     private float weight;
-    private float muscleMass;
-    private float fatMass;
-    private float bodyWaterMass;
+    private float fatMassPct;
 }
