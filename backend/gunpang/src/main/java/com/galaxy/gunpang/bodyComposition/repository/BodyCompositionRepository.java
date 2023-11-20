@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface BodyCompositionRepository extends JpaRepository<BodyComposition, Long> {
+public interface BodyCompositionRepository extends JpaRepository<BodyComposition, Long>, BodyCompositionRepositoryCustom {
     List<BodyComposition> findByUser(User user);
 
 }

@@ -46,16 +46,21 @@ public class BodyCompositionServiceImpl implements BodyCompositionService{
 
     @Override
     public BodyCompositionResDto getBodyCompositions(Long userId) {
+        logger.debug("BodyCompositionServiceImpl getBodyCompositions");
 
         User user = userRepository.findById(userId).orElseThrow(
                 ()-> new UserNotFoundException(userId));
 
         int userHeight = user.getHeight();
-        List<BodyComposition> bodyCompositions = bodyCompositionRepository.findByUser(user);
+        Optional<List<BodyComposition>> recentBodyCompositions = bodyCompositionRepository.getRecentTwoBodyCompositionByUser(user);
+        logger.debug("recentBodyCompositions : " + recentBodyCompositions.toString());
+        List<BodyComposition> bodyCompositions = recentBodyCompositions.get();
         //체성분 기록이 없음
         if (bodyCompositions.isEmpty()){
+            logger.debug("BodyCompositionNotFoundException");
             throw new BodyCompositionNotFoundException();
         }
+        logger.debug("BodyComposition Found");
         BodyCompositionResDto bodyCompositionResDto = null;
         //가장 최근 기록과 오늘과의 기간 계산
         Period period = Period.between(LocalDate.from(bodyCompositions.get(0).getCreatedAt()), LocalDate.now());
@@ -77,14 +82,14 @@ public class BodyCompositionServiceImpl implements BodyCompositionService{
         //최근 기록이 존재하지만, 기록이 하나가 아님 (예전 기록이 존재)
         if(period.getMonths() < 1){
             logger.debug(String.valueOf(bodyCompositions.get(1).getFatMass()));
-            bodyCompositionResDto = BodyCompositionResDto.builder().curWeight(String.format("%.1f", bodyCompositions.get(1).getWeight()))
-                    .prevWeight(String.format("%.1f", bodyCompositions.get(0).getWeight()))
-                    .curFatMass(String.format("%.1f", bodyCompositions.get(1).getFatMass()))
-                    .prevFatMass(String.format("%.1f", bodyCompositions.get(0).getFatMass()))
-                    .curFatMassPct(String.format("%.1f", bodyCompositions.get(1).getFatMassPct()))
-                    .prevFatMassPct(String.format("%.1f", bodyCompositions.get(0).getFatMassPct()))
-                    .curBMI(String.format("%.1f", bodyCompositions.get(1).getBmi()))
-                    .prevBMI(String.format("%.1f", bodyCompositions.get(0).getBmi()))
+            bodyCompositionResDto = BodyCompositionResDto.builder().curWeight(String.format("%.1f", bodyCompositions.get(0).getWeight()))
+                    .prevWeight(String.format("%.1f", bodyCompositions.get(1).getWeight()))
+                    .curFatMass(String.format("%.1f", bodyCompositions.get(0).getFatMass()))
+                    .prevFatMass(String.format("%.1f", bodyCompositions.get(1).getFatMass()))
+                    .curFatMassPct(String.format("%.1f", bodyCompositions.get(0).getFatMassPct()))
+                    .prevFatMassPct(String.format("%.1f", bodyCompositions.get(1).getFatMassPct()))
+                    .curBMI(String.format("%.1f", bodyCompositions.get(0).getBmi()))
+                    .prevBMI(String.format("%.1f", bodyCompositions.get(1).getBmi()))
                     .build();
             return bodyCompositionResDto;
         }
