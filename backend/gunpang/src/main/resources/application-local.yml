@@ -9,7 +9,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
 
     properties:
       hibernate:
@@ -28,6 +28,8 @@ spring:
     jdbc:
       initialize-schema: always
       isolation-level-for-create: default
+    job:
+      enabled: false
 
 logging:
   level:
