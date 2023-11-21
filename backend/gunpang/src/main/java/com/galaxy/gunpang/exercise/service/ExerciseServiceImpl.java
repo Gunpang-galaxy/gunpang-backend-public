@@ -97,7 +97,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                         .build()
         );
 
-        dailyRecord.setExerciseAccTime(dailyRecord.getExerciseAccTime() + total);
+        dailyRecord.setExerciseAccTime((long) total);
         return dailyRecordRepository.save(dailyRecord).getId();
     }
 
@@ -108,9 +108,9 @@ public class ExerciseServiceImpl implements ExerciseService {
         Exercise highIntensity = getPrevExercise(dailyRecordId, ExerciseIntensity.HIGH);
 
         // 현재 운동 강도 별 운동 진행 시간
-        lowIntensity.setHeartRate(lowIntensity.getHeartRate() + low);
-        mediumIntensity.setHeartRate(mediumIntensity.getHeartRate() + medium);
-        highIntensity.setHeartRate(highIntensity.getHeartRate() + high);
+        lowIntensity.setHeartRate(low);
+        mediumIntensity.setHeartRate(medium);
+        highIntensity.setHeartRate(high);
 
         // 운동 강도 별 진행 시간 저장
         exerciseRepository.save(lowIntensity);
