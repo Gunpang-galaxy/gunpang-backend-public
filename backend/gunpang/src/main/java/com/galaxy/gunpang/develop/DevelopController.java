@@ -326,4 +326,18 @@ public class DevelopController {
 
         return ResponseEntity.ok().build();
     }
+
+    @Operation(summary = "시간 체크", description = "현재 시각을 체크한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "요청 성공")
+            , @ApiResponse(responseCode = "500", description = "DB 서버 에러")
+    })
+    @GetMapping("/check-time")
+    public ResponseEntity<String> checkTime(){
+        LocalDate localDate = LocalDate.now();
+        LocalDateTime localDateTime = LocalDateTime.now();
+        log.debug("[GET] checkTime method : {} {}", localDate, localDateTime);
+
+        return ResponseEntity.ok().body(localDate.toString() + localDateTime.toString());
+    }
 }
