@@ -36,4 +36,20 @@ public class ExerciseController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @Operation(summary = "운동 완료", description = "운동 완료 후 운동한 기록을 저장합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "운동 기록 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "403", description = "로그인 필요"),
+            @ApiResponse(responseCode = "404", description = "운동 기록 실패"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    @PostMapping(path = "/complete")
+    public ResponseEntity<?> exerciseComplete(@RequestHeader("Authorization") String token) throws Exception {
+        Long userId = userService.getIdByToken(token).getId();
+        exerciseService.exerciseComplete(userId);
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
 }

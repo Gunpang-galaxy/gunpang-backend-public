@@ -35,6 +35,8 @@ public class Exercise extends BaseEntity {
     @Column()
     private Integer heartRate;
 
+    public void setHeartRate(Integer heartRate) { this.heartRate = heartRate; }
+
     @Builder
     public Exercise(Long dailyRecordId, ExerciseIntensity exerciseIntensity, LocalDateTime startedTime, LocalDateTime finishedTime) {
         this.dailyRecordId = dailyRecordId;

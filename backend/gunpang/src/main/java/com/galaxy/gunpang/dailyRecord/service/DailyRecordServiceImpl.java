@@ -43,17 +43,15 @@ public class DailyRecordServiceImpl implements DailyRecordService {
 
     private final DailyRecordRepository dailyRecordRepository;
     private final ExerciseRepository exerciseRepository;
-    private final UserRepository userRepository;
-    private final ExerciseRecordClient exerciseRecordClient;
 
     private static final Logger logger = LoggerFactory.getLogger(DailyRecordService.class);
 
     public String convertExerciseAccTimeSecondToString(DailyRecord dailyRecord) {
         Duration duration = Duration.ofSeconds(dailyRecord.getExerciseAccTime());
 
-        return String.format("%02d시간 %02d분",
-                duration.toHours(),
-                duration.toMinutesPart());
+        return String.format("%d분 %d초",
+                duration.toMinutesPart(),
+                duration.toSecondsPart());
     }
 
     public FoodType processNullOnFoodType(FoodType foodType) {
@@ -220,56 +218,27 @@ public class DailyRecordServiceImpl implements DailyRecordService {
         //변환해줘야 가능
         LocalDate localDate = LocalDate.parse(date);
 
+        // 해당 날짜의 운동 기록 가져오기
         DailyRecord dailyRecord = returnDailyRecordOfDate(userId, localDate);
 
-        List<Exercise> exercises = exerciseRepository.getDailyExerciseRecordOnDateByRecordId(dailyRecord.getId()).orElseThrow(
-                //비어있어도 에러 안남... 안나는게 맞는듯
+        // 해당 날짜의 운동 강도 별 운동 시간 가져오기
+        List<Exercise> exercises = exerciseRepository.getDailyExerciseRecordOnDateByRecordId(dailyRecord.getId()).orElse(
+                List.of()
         );
         logger.debug(exercises.toString());
         List<CheckDailyRecordOnCalendarResDto.ExerciseOnDate> exerciseOnDates = new ArrayList<>();
 
-        //운동들 가져온 거에서 운동 시간 계산해주고 리스트로 넣어야될듯
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new UserNotFoundException(userId)
-        );
-        int age = LocalDate.now().getYear() - user.getBirthYear(); // 사용자의 나이
-        String gender = user.getGender().toString(); // 사용자의 성별
-        List<ExerciseRecordResDto> exerciseRecordResDto = exerciseRecordClient.getExerciseRecord(user.getGoogleId(), date, age, gender);
-
-        // 운동 강도 계산을 위한 기준 심박수
-        int maxHeartRate = 220 - age;
-        int averageHeartRate = 72;
-        if (gender == "FEMALE") averageHeartRate = 76;
-        double lowHeartRate = (maxHeartRate - averageHeartRate) * 0.65 + averageHeartRate;
-        double highHeartRate = (maxHeartRate - averageHeartRate) * 0.85 + averageHeartRate;
-
-        // 운동 강도 계산
-        int low = 0, medium = 0, high = 0;
-        for (int i = 0; i < exerciseRecordResDto.size(); i++) {
-            double heartRate = exerciseRecordResDto.get(i).getHeartbeat();
-            if (heartRate < lowHeartRate) low++;
-            else if (heartRate < highHeartRate) medium++;
-            else high++;
-        }
-
-        logger.debug("low : " + low + ", medium : " + medium + ", high : " + high);
-        exerciseOnDates.add(new CheckDailyRecordOnCalendarResDto.ExerciseOnDate(String.format("%d분 %d초", low / 60, low % 60), ExerciseIntensity.LOW));
-        exerciseOnDates.add(new CheckDailyRecordOnCalendarResDto.ExerciseOnDate(String.format("%d분 %d초", medium / 60, medium % 60), ExerciseIntensity.MEDIUM));
-        exerciseOnDates.add(new CheckDailyRecordOnCalendarResDto.ExerciseOnDate(String.format("%d분 %d초", high / 60, high % 60), ExerciseIntensity.HIGH));
-
+        // 운동 강도 별 운동 시간 계산
         for (int i = 0; i < exercises.size(); i++) {
-            //운동 시간 계산
-            Duration duration = Duration.between(exercises.get(i).getStartedTime(), exercises.get(i).getFinishedTime());
-            String exerciseAccTime = String.format("%02d시간 %02d분",
-                    duration.toHours(),
-                    duration.toMinutesPart());
-
+            if (exercises.get(i).getHeartRate() == 0) continue; // 운동 시간이 0인 경우 제외
+            String exerciseTime = String.format("%d분 %d초", exercises.get(i).getHeartRate() / 60, exercises.get(i).getHeartRate() % 60);
             exerciseOnDates.add(CheckDailyRecordOnCalendarResDto.ExerciseOnDate.builder()
-                    .exerciseAccTime(exerciseAccTime)
+                    .exerciseAccTime(exerciseTime)
                     .exerciseIntensity(exercises.get(i).getExerciseIntensity())
                     .build());
         }
 
+        // 총 운동 시간
         String exerciseTime = convertExerciseAccTimeSecondToString(dailyRecord);
 
         //foodType null 처리
