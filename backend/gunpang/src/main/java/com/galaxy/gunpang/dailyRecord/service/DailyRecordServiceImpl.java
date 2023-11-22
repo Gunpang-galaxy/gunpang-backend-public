@@ -267,17 +267,22 @@ public class DailyRecordServiceImpl implements DailyRecordService {
 
     @Override
     public void recordSleepWithHealthConnectApi(long userId, SleepRecordApiReqDto sleepRecordApiReqDto) {
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+
         LocalDate localDate = LocalDate.parse(sleepRecordApiReqDto.getRecordDate());
 
-        if (!localDate.equals(LocalDate.now())) {
+        logger.debug(localDate.toString());
+
+        LocalDate awakeAt = LocalDate.parse(sleepRecordApiReqDto.getAwakeAt(),formatter);
+        logger.debug(awakeAt.toString());
+
+        if (!localDate.equals(LocalDate.now()) || !awakeAt.equals(LocalDate.now())) {
             throw new RecordDateNotTodayException();
         }
 
         DailyRecord dailyRecord = returnDailyRecordOfDate(userId, localDate);
 
         logger.debug(dailyRecord.toString());
-
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
 
         dailyRecord.setSleepRecord(LocalDateTime.parse(sleepRecordApiReqDto.getSleepAt(), formatter), LocalDateTime.parse(sleepRecordApiReqDto.getAwakeAt(), formatter));
 
