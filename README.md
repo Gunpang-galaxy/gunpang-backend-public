@@ -9,6 +9,7 @@
 
 ## MultiThread Processing
 
+Spring Batch의 장점 중 하나인 병렬 처리를 통해  
 각 chunk들을 MultiThread로 처리하여 배치 작업의 실행 속도 최적화
 
 **Single Thread 사용 결과**
@@ -18,4 +19,4 @@
 ![image](https://github.com/Gunpang-galaxy/gunpang-backend/assets/88764490/4efc9994-24a9-44b3-a1ee-31c1da074f3b)
 
   
--> 약 190%의 성능 개선
+542ms vs 1s576ms -> 약 190%의 성능 개선
