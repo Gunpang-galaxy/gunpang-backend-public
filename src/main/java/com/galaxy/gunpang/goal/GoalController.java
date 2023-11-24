@@ -1,9 +1,7 @@
 package com.galaxy.gunpang.goal;
 
-import com.galaxy.gunpang.avatar.model.dto.AvatarIdReqDto;
 import com.galaxy.gunpang.avatar.service.AvatarService;
 import com.galaxy.gunpang.common.model.dto.MessageResDto;
-import com.galaxy.gunpang.goal.model.Goal;
 import com.galaxy.gunpang.goal.model.dto.CalendarResDto;
 import com.galaxy.gunpang.goal.model.dto.GoalReqDto;
 import com.galaxy.gunpang.goal.model.dto.GoalResDto;
