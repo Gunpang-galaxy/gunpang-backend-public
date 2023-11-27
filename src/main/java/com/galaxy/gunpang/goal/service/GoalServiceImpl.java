@@ -1,9 +1,7 @@
 package com.galaxy.gunpang.goal.service;
 
-import com.galaxy.gunpang.avatar.exception.AvatarAlreadyExistException;
 import com.galaxy.gunpang.avatar.exception.AvatarNotFoundException;
 import com.galaxy.gunpang.avatar.model.Avatar;
-import com.galaxy.gunpang.avatar.model.dto.AvatarIdReqDto;
 import com.galaxy.gunpang.avatar.repository.AvatarRepository;
 import com.galaxy.gunpang.avatar.repository.DeathCauseRepository;
 import com.galaxy.gunpang.common.model.enums.InitCode;
