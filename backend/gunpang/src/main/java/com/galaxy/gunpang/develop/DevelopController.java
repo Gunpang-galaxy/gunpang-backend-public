@@ -20,6 +20,7 @@ import com.galaxy.gunpang.exercise.model.enums.ExerciseIntensity;
 import com.galaxy.gunpang.exercise.repository.ExerciseRepository;
 import com.galaxy.gunpang.goal.model.dto.GoalReqDto;
 import com.galaxy.gunpang.goal.service.GoalService;
+import com.galaxy.gunpang.user.annotation.NoAuth;
 import com.galaxy.gunpang.user.model.dto.LogInResDto;
 import com.galaxy.gunpang.user.model.dto.SignUpReqDto;
 import com.galaxy.gunpang.user.service.JwtService;
@@ -73,6 +74,7 @@ public class DevelopController {
 
     private final AvatarScheduler avatarScheduler;
 
+    @NoAuth
     @Operation(summary = "아바타 체력 변화", description = "ALIVE 상태의 전체 아바타에 로직 실행")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공")
@@ -87,6 +89,7 @@ public class DevelopController {
         return ResponseEntity.ok().build();
     }
 
+    @NoAuth
     @Operation(summary = "테스트 n일전 기록 생성", description = "n일전 하루 기록을 생성합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "하루 기록 생성 성공"),
@@ -107,6 +110,7 @@ public class DevelopController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @NoAuth
     @Operation(summary = "테스트 n일전 수면 기록", description = "n일전 수면 기록수동으로 저장하는 용도")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "수면 기록 성공"),
@@ -144,6 +148,7 @@ public class DevelopController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @NoAuth
     @Operation(summary = "테스트 n일전 식사 기록", description = "n일전 식사한 기록을 저장합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "식사 기록 성공"),
@@ -181,6 +186,7 @@ public class DevelopController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @NoAuth
     @Operation(summary = "테스트 n일전 운동 기록", description = "n일전 운동한 기록을 저장합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "운동 기록 성공"),
@@ -216,6 +222,7 @@ public class DevelopController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @NoAuth
     @Operation(summary = "테스트 데이터 넣기", description = "유저, 아바타, 목표 생성")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = LogInResDto.class)))
@@ -247,7 +254,7 @@ public class DevelopController {
         return ResponseEntity.ok().body(logInResDto);
     }
 
-
+    @NoAuth
     @Operation(summary = "테스트 다수 데이터 넣기", description = "유저, 아바타, 목표 생성")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = LogInResDto.class)))
@@ -268,6 +275,7 @@ public class DevelopController {
         return ResponseEntity.ok().build();
     }
 
+    @NoAuth
     @Operation(summary = "테스트 n일전 데이터 넣기", description = "유저, 아바타, 목표 생성")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = LogInResDto.class)))
@@ -299,6 +307,7 @@ public class DevelopController {
         return ResponseEntity.ok().body(logInResDto);
     }
 
+    @NoAuth
     @Operation(summary = "그 달에 더미 데이터 넣기", description = "그 달에 데미지 데이터를 랜덤 생성한다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공")
@@ -327,6 +336,7 @@ public class DevelopController {
         return ResponseEntity.ok().build();
     }
 
+    @NoAuth
     @Operation(summary = "시간 체크", description = "현재 시각을 체크한다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공")
