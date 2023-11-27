@@ -16,8 +16,8 @@ import java.util.Date;
 public class JwtUtil {
 
     private final byte[] jwtSecretBytes;
-    private final static Long ACCESS_TOKEN_VALID_TIME = 24 * 60 * 60 * 1000L * 7 * 4; // 4주
-    private final static Long REFRESH_TOKEN_VALID_TIME = 24 * 60 * 60 * 1000L * 7 * 4 * 6; // 4주 * 6
+    private final static Long ACCESS_TOKEN_VALID_TIME = 30 * 60 * 1000L; // 30분
+    private final static Long REFRESH_TOKEN_VALID_TIME = 7 * 24 * 60 * 60 * 1000L; // 7일
 
     public JwtUtil(@Value("${jwt.secret}") String jwtSecret) {
         this.jwtSecretBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
