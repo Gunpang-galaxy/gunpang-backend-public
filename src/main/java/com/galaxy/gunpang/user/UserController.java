@@ -1,6 +1,7 @@
 package com.galaxy.gunpang.user;
 
 import com.galaxy.gunpang.notification.NotificationController;
+import com.galaxy.gunpang.user.annotation.NoAuth;
 import com.galaxy.gunpang.user.exception.UserAlreadyExistsException;
 import com.galaxy.gunpang.user.exception.UserNotFoundException;
 import com.galaxy.gunpang.user.model.dto.*;
@@ -33,6 +34,7 @@ public class UserController {
 
     private static final Logger logger = LoggerFactory.getLogger(NotificationController.class);
 
+    @NoAuth
     @Operation(summary = "사용자 로그인", description = "사용자 로그인을 합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = LogInResDto.class)))
@@ -55,6 +57,7 @@ public class UserController {
         }
     }
 
+    @NoAuth
     @Operation(summary = "사용자 회원가입", description = "사용자 회원가입을 합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요청 성공", content = @Content(schema = @Schema(implementation = SignUpResDto.class)))

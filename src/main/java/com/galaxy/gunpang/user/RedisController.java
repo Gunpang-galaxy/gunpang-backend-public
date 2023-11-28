@@ -1,5 +1,6 @@
 package com.galaxy.gunpang.user;
 
+import com.galaxy.gunpang.user.annotation.NoAuth;
 import com.galaxy.gunpang.user.service.RedisService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -15,16 +16,19 @@ public class RedisController {
 
     private final RedisService redisService;
 
+    @NoAuth
     @PostMapping
     public void redisCreateTest(@RequestParam String id, @RequestParam String tokens) {
         redisService.setToken(id, tokens);
     }
 
+    @NoAuth
     @GetMapping
     public String redisReadTest(@RequestParam String id) {
         return redisService.getToken(id);
     }
 
+    @NoAuth
     @PutMapping
     public void redisUpdateTest(@RequestParam String id, @RequestParam String token) {
         redisService.updateToken(id, token);
